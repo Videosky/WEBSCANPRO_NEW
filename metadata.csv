@@ -1,0 +1,5 @@
+url,method,param_name,input_type,default_value,form_action
+http://localhost:8080/login.php,POST,username,text,,http://localhost:8080/login.php
+http://localhost:8080/login.php,POST,password,password,,http://localhost:8080/login.php
+http://localhost:8080/login.php,POST,Login,submit,Login,http://localhost:8080/login.php
+http://localhost:8080/login.php,POST,user_token,hidden,01108007452f2c4f2254d48311be6778,http://localhost:8080/login.php
