@@ -1,0 +1,5 @@
+url,param_name,input_value,input_length,num_special_chars,num_digits,is_alpha_only,param_type,contains_sql_keyword,contains_html_tag
+http://localhost:8080/login.php,username,,0,0,0,False,text,0,0
+http://localhost:8080/login.php,password,,0,0,0,False,password,0,0
+http://localhost:8080/login.php,Login,Login,5,0,0,True,submit,0,0
+http://localhost:8080/login.php,user_token,3adabad9751333d3b4fc81097cac8448,32,0,19,False,hidden,0,0
