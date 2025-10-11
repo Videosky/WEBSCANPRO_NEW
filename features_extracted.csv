@@ -1,5 +1,0 @@
-input_length,num_special_chars,num_digits,is_alpha_only,param_type,contains_sql_keyword,contains_html_tag,url,parameter,input_value
-0,0,0,False,text,0,0,http://localhost:8080/login.php,username,
-0,0,0,False,password,0,0,http://localhost:8080/login.php,password,
-5,0,0,True,submit,0,0,http://localhost:8080/login.php,Login,Login
-32,0,15,False,hidden,0,0,http://localhost:8080/login.php,user_token,e1ceb61c4d8c111bdb36e5e4f47b1cce
