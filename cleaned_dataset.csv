@@ -1,0 +1,5 @@
+url,param_name,input_value,input_length,num_special_chars,num_digits,is_alpha_only,param_type,contains_sql_keyword,contains_html_tag
+0,3,,0.0,0.0,0.0,False,3,0,0
+0,1,,0.0,0.0,0.0,False,1,0,0
+0,0,Login,0.15625,0.0,0.0,True,2,0,0
+0,2,3adabad9751333d3b4fc81097cac8448,1.0,0.0,1.0,False,0,0,0
