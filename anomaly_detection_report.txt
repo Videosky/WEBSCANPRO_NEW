@@ -1,0 +1,22 @@
+
+ANOMALY DETECTION REPORT
+========================
+Dataset: C:\Users\vishal\Desktop\web\data\anomaly_detection_results.csv
+Samples: 1000
+Features: ['input_length', 'num_special_chars', 'num_digits', 'contains_sql_keyword', 'contains_html_tag', 'param_type']
+
+RESULTS:
+--------
+Isolation Forest:
+- Precision: 0.1100
+- Recall:    0.1038
+- F1-Score:  0.1068
+- ROC-AUC:   0.5021
+- Detected:  100
+
+One-Class SVM:
+- Precision: 0.0928
+- Recall:    0.0849
+- F1-Score:  0.0887
+- ROC-AUC:   0.4932
+- Detected:  97

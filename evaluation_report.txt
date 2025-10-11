@@ -1,0 +1,12 @@
+anomaly_iforest:
+  precision: 0.0800
+  recall: 0.0377
+  f1_score: 0.0513
+  roc_auc: 0.4931
+
+anomaly_ocsvm:
+  precision: 0.1221
+  recall: 0.4906
+  f1_score: 0.1955
+  roc_auc: 0.5361
+
