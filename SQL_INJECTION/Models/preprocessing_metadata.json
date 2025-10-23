@@ -1,0 +1,21 @@
+{
+  "feature_columns": [
+    "response_time",
+    "html_content_length",
+    "error_message_flag",
+    "status_group"
+  ],
+  "scaler_mean": [
+    -0.05092315639288665,
+    0.07972009254001487,
+    0.3181818181818182,
+    0.45454545454545453
+  ],
+  "scaler_scale": [
+    0.9221703001142966,
+    1.0099765123522086,
+    0.46577048936179993,
+    0.6555547773570889
+  ],
+  "best_model": "decision_tree"
+}
