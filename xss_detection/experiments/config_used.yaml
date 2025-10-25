@@ -1,0 +1,50 @@
+data:
+  clean_special_chars: false
+  lowercase: true
+  max_sequence_length: 1000
+  min_sequence_length: 10
+experiment:
+  name: xss_detection_v1
+  random_seed: 42
+features:
+  regex_patterns:
+  - <script
+  - onerror=
+  - onload=
+  - 'javascript:'
+  - alert\(
+  - eval\(
+  - fromCharCode
+  use_basic_features: true
+  use_regex_features: true
+  use_statistical_features: true
+model:
+  bidirectional: true
+  dropout: 0.3
+  embedding_dim: 128
+  filter_sizes:
+  - 2
+  - 3
+  - 4
+  - 5
+  hidden_size: 256
+  num_heads: 8
+  num_layers: 2
+  type: lstm
+  use_attention: true
+  use_residual: true
+training:
+  batch_size: 32
+  epochs: 50
+  focal_alpha: 1.0
+  focal_gamma: 2.0
+  grad_clip: 1.0
+  gradient_accumulation_steps: 1
+  learning_rate: 0.001
+  loss_type: bce
+  optimizer: adam
+  patience: 5
+  scheduler: reduce_lr
+  test_split: 0.2
+  validation_split: 0.1
+  weight_decay: 0.0

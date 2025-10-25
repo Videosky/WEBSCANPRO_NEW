@@ -1,0 +1,4 @@
+Model Type: lstm
+Parameters: 2,902,018
+Best Val F1: 1.0000
+Test F1: 1.0000
