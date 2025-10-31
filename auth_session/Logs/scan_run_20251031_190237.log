@@ -1,0 +1,45 @@
+2025-10-31 19:02:37,367 - auth_scanner - INFO - Logging initialized. Scan log: c:\Users\vishal\Desktop\WEBSCAN_PRO\projects\auth_session\logs\scan_run_20251031_190237.log
+2025-10-31 19:02:37,368 - auth_scanner - INFO - Raw events log: c:\Users\vishal\Desktop\WEBSCAN_PRO\projects\auth_session\logs\raw_login_events_20251031_190237.log
+2025-10-31 19:02:37,368 - auth_scanner - INFO - Starting authentication scan for Dataset 1 generation...
+2025-10-31 19:02:37,372 - auth_scanner - INFO - Loaded attack patterns from c:\Users\vishal\Desktop\WEBSCAN_PRO\projects\auth_session\data\attack_patterns.csv
+2025-10-31 19:02:37,373 - auth_scanner - INFO - Columns found: ['pattern_id', 'description', 'attempt_rate', 'distributed_flag', 'notes']
+2025-10-31 19:02:37,378 - auth_scanner - INFO - Generating normal traffic...
+2025-10-31 19:02:37,378 - auth_scanner - INFO - Generating normal user traffic...
+2025-10-31 19:02:37,697 - auth_scanner - INFO - Executing pattern: NORMAL_SINGLE
+2025-10-31 19:02:37,697 - auth_scanner - INFO - Executing pattern: NORMAL_SINGLE (success rate: 0.7, attack: False)
+2025-10-31 19:02:37,842 - auth_scanner - INFO - Executing pattern: NORMAL_MULTI
+2025-10-31 19:02:37,843 - auth_scanner - INFO - Executing pattern: NORMAL_MULTI (success rate: 0.7, attack: False)
+2025-10-31 19:02:38,052 - auth_scanner - INFO - Executing pattern: BF_FAST_RAPID
+2025-10-31 19:02:38,053 - auth_scanner - INFO - Executing pattern: BF_FAST_RAPID (success rate: 0.45, attack: True)
+2025-10-31 19:02:38,280 - auth_scanner - INFO - Executing pattern: BF_FAST_MULTI
+2025-10-31 19:02:38,282 - auth_scanner - INFO - Executing pattern: BF_FAST_MULTI (success rate: 0.45, attack: True)
+2025-10-31 19:02:38,622 - auth_scanner - INFO - Executing pattern: BF_SLOW_LOW
+2025-10-31 19:02:38,624 - auth_scanner - INFO - Executing pattern: BF_SLOW_LOW (success rate: 0.3, attack: True)
+2025-10-31 19:02:38,872 - auth_scanner - INFO - Executing pattern: CRED_STUFF_SINGLE
+2025-10-31 19:02:38,873 - auth_scanner - INFO - Executing pattern: CRED_STUFF_SINGLE (success rate: 0.58, attack: True)
+2025-10-31 19:02:39,157 - auth_scanner - INFO - Executing pattern: CRED_STUFF_DIST
+2025-10-31 19:02:39,158 - auth_scanner - INFO - Executing pattern: CRED_STUFF_DIST (success rate: 0.58, attack: True)
+2025-10-31 19:02:39,387 - auth_scanner - INFO - Executing pattern: DIST_BF_CONSIST
+2025-10-31 19:02:39,389 - auth_scanner - INFO - Executing pattern: DIST_BF_CONSIST (success rate: 0.4, attack: True)
+2025-10-31 19:02:39,640 - auth_scanner - INFO - Executing pattern: DIST_BF_BURST
+2025-10-31 19:02:39,641 - auth_scanner - INFO - Executing pattern: DIST_BF_BURST (success rate: 0.35, attack: True)
+2025-10-31 19:02:39,997 - auth_scanner - INFO - Executing pattern: ATO_FAIL2SUCCESS
+2025-10-31 19:02:39,997 - auth_scanner - INFO - Executing pattern: ATO_FAIL2SUCCESS (success rate: 0.6, attack: True)
+2025-10-31 19:02:40,216 - auth_scanner - INFO - Executing pattern: ATO_GEO_HOP
+2025-10-31 19:02:40,217 - auth_scanner - INFO - Executing pattern: ATO_GEO_HOP (success rate: 0.5, attack: True)
+2025-10-31 19:02:40,513 - auth_scanner - INFO - Executing pattern: SESSION_HIJACK
+2025-10-31 19:02:40,516 - auth_scanner - INFO - Executing pattern: SESSION_HIJACK (success rate: 0.7, attack: True)
+2025-10-31 19:02:40,682 - auth_scanner - INFO - Executing pattern: SESSION_FIXATION
+2025-10-31 19:02:40,683 - auth_scanner - INFO - Executing pattern: SESSION_FIXATION (success rate: 0.65, attack: True)
+2025-10-31 19:02:40,954 - auth_scanner - INFO - Executing pattern: MIXED_BLEND
+2025-10-31 19:02:40,955 - auth_scanner - INFO - Executing pattern: MIXED_BLEND (success rate: 0.55, attack: True)
+2025-10-31 19:02:41,211 - auth_scanner - INFO - Executing pattern: RATE_LIMIT_TEST
+2025-10-31 19:02:41,212 - auth_scanner - INFO - Executing pattern: RATE_LIMIT_TEST (success rate: 0.2, attack: True)
+2025-10-31 19:02:41,488 - auth_scanner - INFO - Executing pattern: SCAN_RECON
+2025-10-31 19:02:41,488 - auth_scanner - INFO - Executing pattern: SCAN_RECON (success rate: 0.1, attack: True)
+2025-10-31 19:02:41,827 - auth_scanner - INFO - Scan completed! Generated 3350 events
+2025-10-31 19:02:41,829 - auth_scanner - INFO - Normal events: 710, Attack events: 2640
+2025-10-31 19:02:41,829 - auth_scanner - INFO - Overall success rate: 51.82%
+2025-10-31 19:02:41,830 - auth_scanner - INFO - Results saved to: c:\Users\vishal\Desktop\WEBSCAN_PRO\projects\auth_session\data\login_session_dataset_type1.csv
+2025-10-31 19:02:41,830 - auth_scanner - INFO - Raw events logged to: c:\Users\vishal\Desktop\WEBSCAN_PRO\projects\auth_session\logs\raw_login_events_20251031_190237.log
+2025-10-31 19:02:41,831 - auth_scanner - INFO - Scan log: c:\Users\vishal\Desktop\WEBSCAN_PRO\projects\auth_session\logs\scan_run_20251031_190237.log
