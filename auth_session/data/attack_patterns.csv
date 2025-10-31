@@ -1,0 +1,17 @@
+pattern_id,description,attempt_rate,distributed_flag,notes
+NORMAL_SINGLE,Normal single user behavior,2,0,Legitimate user with occasional login/logout
+NORMAL_MULTI,Normal multiple users,5,0,Multiple legitimate users from different IPs
+BF_FAST_RAPID,Rapid brute-force single account,120,0,10 attempts/minute from single IP
+BF_FAST_MULTI,Fast brute-force multiple accounts,90,0,Single IP targeting multiple usernames
+BF_SLOW_LOW,Slow low-and-slow attack,12,0,1 attempt/5 minutes to evade detection
+CRED_STUFF_SINGLE,Credential stuffing single IP,60,0,Single IP testing breached credentials
+CRED_STUFF_DIST,Distributed credential stuffing,30,1,Multiple IPs testing credential pairs
+DIST_BF_CONSIST,Distributed brute-force consistent,25,1,Multiple IPs targeting single account
+DIST_BF_BURST,Distributed brute-force burst,80,1,Burst attacks from many IPs
+ATO_FAIL2SUCCESS,Account takeover after failures,8,0,Failed attempts followed by success
+ATO_GEO_HOP,Geolocation hopping attack,15,1,Rapid logins from different countries
+SESSION_HIJACK,Session hijack simulation,3,1,Session token reuse across IPs
+SESSION_FIXATION,Session fixation attempts,5,0,Forcing known session tokens
+MIXED_BLEND,Mixed attack patterns,45,1,Combination of multiple techniques
+RATE_LIMIT_TEST,Rate limit testing,200,0,Testing application rate limits
+SCAN_RECON,Reconnaissance scanning,20,0,Username enumeration and system probing
