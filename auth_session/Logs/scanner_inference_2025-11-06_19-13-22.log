@@ -1,0 +1,11 @@
+2025-11-06 19:13:22,839 - auth_ml_integration - INFO - ML Integration initialized - Logging to: projects\auth_session\logs\scanner_inference_2025-11-06_19-13-22.log
+2025-11-06 19:13:22,840 - auth_ml_integration - INFO - Loading ML models...
+2025-11-06 19:13:23,167 - auth_ml_integration - INFO - [SUCCESS] Isolation Forest loaded successfully
+2025-11-06 19:13:23,287 - auth_ml_integration - INFO - [SUCCESS] Autoencoder loaded successfully
+2025-11-06 19:13:23,288 - auth_ml_integration - INFO - [SUCCESS] Preprocessing artifacts loaded successfully
+2025-11-06 19:13:23,290 - auth_ml_integration - INFO -    Autoencoder threshold: 0.236122
+2025-11-06 19:13:23,290 - auth_ml_integration - INFO -    Feature count: 20
+2025-11-06 19:13:23,290 - auth_ml_integration - INFO - [SUCCESS] All ML models loaded and ready for inference
+2025-11-06 19:13:23,469 - auth_ml_integration - INFO - Session normal_session_001: Final=anomalous, Confidence=1.00, Time=178.68ms
+2025-11-06 19:13:23,588 - auth_ml_integration - INFO - Session anomalous_session_001: Final=anomalous, Confidence=1.00, Time=116.97ms
+2025-11-06 19:13:23,670 - auth_ml_integration - INFO - Session borderline_session_001: Final=anomalous, Confidence=1.00, Time=81.97ms
