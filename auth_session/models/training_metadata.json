@@ -1,0 +1,88 @@
+{
+  "feature_columns": [
+    "endpoint_encoded",
+    "param_key_count",
+    "status_encoded",
+    "response_length",
+    "sensitive_data_found",
+    "self_access",
+    "has_user_id",
+    "has_target_id",
+    "has_parameters",
+    "user_request_count",
+    "user_unauthorized_count",
+    "user_success_rate"
+  ],
+  "model_type": "Pipeline",
+  "training_timestamp": "2025-11-07T16:46:26.780722",
+  "best_validation_score": 1.0,
+  "test_evaluation": {
+    "accuracy": 0.9,
+    "precision": 1.0,
+    "recall": 0.75,
+    "f1_score": 0.8571428571428571,
+    "roc_auc": 0.75,
+    "confusion_matrix": [
+      [
+        6,
+        0
+      ],
+      [
+        1,
+        3
+      ]
+    ],
+    "predictions": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    "probabilities": [
+      0.31061607693810145,
+      0.3765905001478294,
+      0.33525314148596064,
+      0.8072752751220756,
+      0.36693396328089734,
+      0.8217588883707211,
+      0.30952949231502264,
+      0.34427725541526477,
+      0.3733626420003652,
+      0.6064926893182357
+    ]
+  },
+  "model_comparison": {
+    "logistic_regression": {
+      "score": 1.0,
+      "params": {
+        "lr__C": 0.1,
+        "lr__penalty": "l2",
+        "lr__solver": "liblinear"
+      }
+    },
+    "random_forest": {
+      "score": 1.0,
+      "params": {
+        "rf__max_depth": 10,
+        "rf__min_samples_leaf": 1,
+        "rf__min_samples_split": 5,
+        "rf__n_estimators": 100
+      }
+    },
+    "xgboost": {
+      "score": 1.0,
+      "params": {
+        "xgb__learning_rate": 0.01,
+        "xgb__max_depth": 3,
+        "xgb__n_estimators": 100,
+        "xgb__subsample": 0.8
+      }
+    }
+  }
+}
