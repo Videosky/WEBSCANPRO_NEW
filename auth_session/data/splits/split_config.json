@@ -1,0 +1,39 @@
+{
+  "feature_columns": [
+    "endpoint_encoded",
+    "param_key_count",
+    "status_encoded",
+    "response_length",
+    "sensitive_data_found",
+    "self_access",
+    "has_user_id",
+    "has_target_id",
+    "has_parameters",
+    "user_request_count",
+    "user_unauthorized_count",
+    "user_success_rate"
+  ],
+  "split_sizes": {
+    "train": 30,
+    "validation": 10,
+    "test": 10,
+    "total": 50
+  },
+  "label_distribution": {
+    "train": {
+      "0": 17,
+      "1": 13
+    },
+    "validation": {
+      "1": 5,
+      "0": 5
+    },
+    "test": {
+      "0": 6,
+      "1": 4
+    }
+  },
+  "test_size": 0.2,
+  "val_size": 0.2,
+  "random_state": 42
+}
