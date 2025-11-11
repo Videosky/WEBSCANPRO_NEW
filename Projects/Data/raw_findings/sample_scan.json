@@ -1,0 +1,46 @@
+{
+  "scan_metadata": {
+    "scanner": "OWASP ZAP",
+    "version": "2.14.0",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "target": "https://example.com"
+  },
+  "vulnerabilities": [
+    {
+      "vuln_id": "VULN-001",
+      "vuln_name": "SQL Injection",
+      "description": "Unsanitized user input in login form allows SQL injection attacks",
+      "severity": "Critical",
+      "affected_url": "https://example.com/login",
+      "impact": "Potential full database compromise and unauthorized access",
+      "recommendation": "Use parameterized queries and input validation"
+    },
+    {
+      "vuln_id": "VULN-002",
+      "vuln_name": "Cross-Site Scripting (XSS)",
+      "description": "User input in search field not properly sanitized",
+      "severity": "High",
+      "affected_url": "https://example.com/search",
+      "impact": "Session hijacking and malicious script execution",
+      "recommendation": "Implement output encoding and Content Security Policy"
+    },
+    {
+      "vuln_id": "VULN-003",
+      "vuln_name": "Missing Security Headers",
+      "description": "X-Content-Type-Options and X-Frame-Options headers missing",
+      "severity": "Medium",
+      "affected_url": "https://example.com/",
+      "impact": "Increased risk of clickjacking and MIME sniffing",
+      "recommendation": "Add security headers to server configuration"
+    },
+    {
+      "vuln_id": "VULN-004",
+      "vuln_name": "Information Disclosure",
+      "description": "Server version disclosed in HTTP headers",
+      "severity": "Low",
+      "affected_url": "https://example.com/api/users",
+      "impact": "Reveals system information to potential attackers",
+      "recommendation": "Remove or obscure server version information"
+    }
+  ]
+}
