@@ -1,0 +1,5 @@
+vuln_id,vuln_name,description,severity,affected_url,impact,recommendation
+VULN-001,SQL Injection,Unsanitized user input in login form allows SQL injection attacks,Critical,https://example.com/login,Potential full database compromise and unauthorized access,Use parameterized queries and input validation
+VULN-002,Cross-Site Scripting (XSS),User input in search field not properly sanitized,High,https://example.com/search,Session hijacking and malicious script execution,Implement output encoding and Content Security Policy
+VULN-003,Missing Security Headers,X-Content-Type-Options and X-Frame-Options headers missing,Medium,https://example.com/,Increased risk of clickjacking and MIME sniffing,Add security headers to server configuration
+VULN-004,Information Disclosure,Server version disclosed in HTTP headers,Low,https://example.com/api/users,Reveals system information to potential attackers,Remove or obscure server version information
