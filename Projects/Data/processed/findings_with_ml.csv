@@ -1,0 +1,11 @@
+vuln_id,vuln_name,severity,description,affected_url,recommendation
+VULN-001,SQL Injection,Critical,Potential security vulnerability,https://example.com/page1,Apply security patches
+VULN-002,XSS,High,Potential security vulnerability,https://example.com/page2,Apply security patches
+VULN-003,CSRF,Medium,Potential security vulnerability,https://example.com/page3,Apply security patches
+VULN-004,Info Disclosure,Low,Potential security vulnerability,https://example.com/page4,Apply security patches
+VULN-005,Broken Authentication,High,Potential security vulnerability,https://example.com/page5,Apply security patches
+VULN-006,Sensitive Data Exposure,Medium,Potential security vulnerability,https://example.com/page6,Apply security patches
+VULN-007,XXE,Critical,Potential security vulnerability,https://example.com/page7,Apply security patches
+VULN-008,Insecure Deserialization,High,Potential security vulnerability,https://example.com/page8,Apply security patches
+VULN-009,Security Misconfig,Medium,Potential security vulnerability,https://example.com/page9,Apply security patches
+VULN-010,Insufficient Logging,Low,Potential security vulnerability,https://example.com/page10,Apply security patches
