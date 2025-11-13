@@ -1,0 +1,442 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>WebScanPro - AI Enhanced Vulnerability Report</title>
+            <style>
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    margin: 0; 
+                    padding: 0; 
+                    background-color: #f8f9fa; 
+                    color: #333;
+                    line-height: 1.6;
+                }
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+                .header { 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    color: white; 
+                    padding: 40px 30px; 
+                    border-radius: 15px; 
+                    margin-bottom: 30px; 
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                .header h1 {
+                    margin: 0;
+                    font-size: 2.5em;
+                    font-weight: 300;
+                }
+                .header p {
+                    margin: 10px 0 0 0;
+                    opacity: 0.9;
+                    font-size: 1.1em;
+                }
+                .summary-cards { 
+                    display: flex; 
+                    gap: 20px; 
+                    margin: 30px 0; 
+                    flex-wrap: wrap; 
+                }
+                .card { 
+                    flex: 1; 
+                    min-width: 200px; 
+                    padding: 25px; 
+                    border-radius: 12px; 
+                    text-align: center; 
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                .card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                }
+                .high-confidence { 
+                    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); 
+                    border-left: 5px solid #28a745; 
+                }
+                .medium-confidence { 
+                    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); 
+                    border-left: 5px solid #ffc107; 
+                }
+                .low-confidence { 
+                    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); 
+                    border-left: 5px solid #dc3545; 
+                }
+                .accuracy { 
+                    background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%); 
+                    border-left: 5px solid #6c757d; 
+                }
+                .card h3 {
+                    margin: 0 0 15px 0;
+                    font-size: 1.2em;
+                    color: #2c3e50;
+                }
+                .card-value {
+                    font-size: 2.5em; 
+                    font-weight: bold; 
+                    margin: 15px 0; 
+                    color: #2c3e50;
+                }
+                table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin: 30px 0; 
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    background: white;
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+                th, td { 
+                    padding: 15px 20px; 
+                    text-align: left; 
+                    border-bottom: 1px solid #e9ecef; 
+                }
+                th { 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    color: white; 
+                    font-weight: 600;
+                    font-size: 1.1em;
+                }
+                tr:hover { 
+                    background-color: #f8f9fa; 
+                    transition: background-color 0.2s ease;
+                }
+                .match { 
+                    color: #28a745; 
+                    font-weight: bold; 
+                }
+                .mismatch { 
+                    color: #dc3545; 
+                    font-weight: bold; 
+                }
+                .confidence-bar { 
+                    background: #e9ecef; 
+                    border-radius: 10px; 
+                    height: 25px; 
+                    overflow: hidden;
+                    position: relative;
+                }
+                .confidence-fill { 
+                    height: 100%; 
+                    border-radius: 10px; 
+                    text-align: center; 
+                    color: white; 
+                    font-size: 12px; 
+                    line-height: 25px;
+                    font-weight: bold;
+                    transition: width 0.5s ease;
+                }
+                .visualization-section {
+                    background: white;
+                    padding: 30px;
+                    border-radius: 15px;
+                    margin: 30px 0;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                .visualization-section h2 {
+                    color: #2c3e50;
+                    border-bottom: 2px solid #667eea;
+                    padding-bottom: 10px;
+                    margin-top: 0;
+                }
+                .footer { 
+                    margin-top: 50px; 
+                    text-align: center; 
+                    color: #6c757d; 
+                    border-top: 2px solid #e9ecef; 
+                    padding-top: 30px; 
+                    font-size: 0.9em;
+                }
+                .section-title {
+                    color: #2c3e50;
+                    font-size: 1.8em;
+                    margin: 40px 0 20px 0;
+                    padding-bottom: 10px;
+                    border-bottom: 3px solid #667eea;
+                }
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 20px;
+                    margin: 20px 0;
+                }
+                .stat-item {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    text-align: center;
+                }
+                .stat-value {
+                    font-size: 2em;
+                    font-weight: bold;
+                    color: #667eea;
+                    margin: 10px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🔍 WebScanPro - AI Enhanced Vulnerability Report</h1>
+                    <p>Generated: 2025-11-13 16:15:07</p>
+                    <p><small>Location: C:\Users\vishal\Desktop\WEBSCAN_PRO\webscanprod_reports\reports/html</small></p>
+                </div>
+                
+                <div class="summary-cards">
+                    <div class="card high-confidence">
+                        <h3>🚀 High Confidence</h3>
+                        <div class="card-value">7</div>
+                        <p>findings</p>
+                    </div>
+                    <div class="card medium-confidence">
+                        <h3>⚠️ Medium Confidence</h3>
+                        <div class="card-value">2</div>
+                        <p>findings</p>
+                    </div>
+                    <div class="card low-confidence">
+                        <h3>🔍 Low Confidence</h3>
+                        <div class="card-value">1</div>
+                        <p>findings</p>
+                    </div>
+                    <div class="card accuracy">
+                        <h3>🎯 Prediction Accuracy</h3>
+                        <div class="card-value">90.0%</div>
+                        <p>ML model accuracy</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h3>Total Findings</h3>
+                        <div class="stat-value">10</div>
+                    </div>
+                    <div class="stat-item">
+                        <h3>High Confidence Rate</h3>
+                        <div class="stat-value">70.0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Manual Review Needed</h3>
+                        <div class="stat-value">3</div>
+                    </div>
+                </div>
+        
+                <h2 class="section-title">📋 Vulnerability Findings with ML Predictions</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vuln ID</th>
+                            <th>Vulnerability</th>
+                            <th>True Severity</th>
+                            <th>ML Prediction</th>
+                            <th>Confidence</th>
+                            <th>Status</th>
+                            <th>Affected URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        
+                        <tr>
+                            <td><strong>VULN-001</strong></td>
+                            <td>SQL Injection</td>
+                            <td>Critical</td>
+                            <td>Critical</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 97.1%; background: #28a745;">
+                                        97.1%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page1</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-002</strong></td>
+                            <td>XSS</td>
+                            <td>High</td>
+                            <td>Critical</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 63.3%; background: #ffc107;">
+                                        63.3%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="mismatch">
+                                ❌ Review Needed
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page2</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-003</strong></td>
+                            <td>CSRF</td>
+                            <td>Medium</td>
+                            <td>Medium</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 81.8%; background: #ffc107;">
+                                        81.8%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page3</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-004</strong></td>
+                            <td>Info Disclosure</td>
+                            <td>Low</td>
+                            <td>Low</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 86.0%; background: #28a745;">
+                                        86.0%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page4</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-005</strong></td>
+                            <td>Broken Authentication</td>
+                            <td>High</td>
+                            <td>High</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 91.7%; background: #28a745;">
+                                        91.7%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page5</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-006</strong></td>
+                            <td>Sensitive Data Exposure</td>
+                            <td>Medium</td>
+                            <td>Medium</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 93.0%; background: #28a745;">
+                                        93.0%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page6</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-007</strong></td>
+                            <td>XXE</td>
+                            <td>Critical</td>
+                            <td>Critical</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 47.099999999999994%; background: #dc3545;">
+                                        47.1%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page7</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-008</strong></td>
+                            <td>Insecure Deserialization</td>
+                            <td>High</td>
+                            <td>High</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 85.5%; background: #28a745;">
+                                        85.5%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page8</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-009</strong></td>
+                            <td>Security Misconfig</td>
+                            <td>Medium</td>
+                            <td>Medium</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 87.8%; background: #28a745;">
+                                        87.8%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page9</code></td>
+                        </tr>
+            
+                        <tr>
+                            <td><strong>VULN-010</strong></td>
+                            <td>Insufficient Logging</td>
+                            <td>Low</td>
+                            <td>Low</td>
+                            <td style="min-width: 150px;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 91.0%; background: #28a745;">
+                                        91.0%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="match">
+                                ✅ Match
+                            </td>
+                            <td><code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">https://example.com/page10</code></td>
+                        </tr>
+            
+                    </tbody>
+                </table>
+                
+                <div class="footer">
+                    <p><strong>Total Findings Analyzed:</strong> 10 | 
+                       <strong>Report Generated:</strong> 2025-11-13 16:15:07 | 
+                       <strong>Confidence Threshold:</strong> High (≥85%), Medium (60-85%), Low (<60%)</p>
+                    <p><em>WebScanPro AI Security Scanner - Enhanced with Machine Learning</em></p>
+                    <p style="margin-top: 10px; font-size: 0.8em; color: #adb5bd;">
+                        Report Location: C:\Users\vishal\Desktop\WEBSCAN_PRO\webscanprod_reports\reports/html<br>
+                        This report includes AI-generated predictions with confidence scoring. <br>
+                        Low confidence findings require manual security review.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        
