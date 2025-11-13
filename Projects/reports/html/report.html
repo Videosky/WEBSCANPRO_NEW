@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro Security Assessment - 2025-11-13</title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --critical: #dc3545;
+            --high: #fd7e14;
+            --medium: #ffc107;
+            --low: #20c997;
+            --info: #6c757d;
+        }
+        
+        .severity-critical { color: var(--critical); font-weight: bold; }
+        .severity-high { color: var(--high); font-weight: bold; }
+        .severity-medium { color: var(--medium); }
+        .severity-low { color: var(--low); }
+        .severity-info { color: var(--info); }
+        
+        .stat-card {
+            background: var(--accent-bg);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+        
+        .chart-container {
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: var(--accent-bg);
+            position: sticky;
+            top: 0;
+        }
+        
+        .search-box {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        
+        .pagination {
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .pagination button {
+            margin: 0 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+        }
+        
+        .pagination button.current {
+            background: var(--accent-bg);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>WebScanPro Security Assessment</h1>
+        <p>Security Assessment Report - Generated on 2025-11-13</p>
+    </header>
+
+    <main>
+        <!-- Executive Summary -->
+        <section>
+            <h2>Executive Summary</h2>
+            <div class="stat-card">
+                <strong>Total Findings:</strong> 4<br>
+                <strong>Critical:</strong> <span class="severity-critical">1</span> |
+                <strong>High:</strong> <span class="severity-high">1</span> |
+                <strong>Medium:</strong> <span class="severity-medium">1</span> |
+                <strong>Low:</strong> <span class="severity-low">1</span> |
+                <strong>Info:</strong> <span class="severity-info">0</span>
+            </div>
+            
+            <p>This report presents the results of the security assessment conducted on the target application. 
+            The assessment identified 4 security findings across various severity levels.</p>
+        </section>
+
+        <!-- Interactive Charts -->
+        <section>
+            <h2>Security Metrics</h2>
+            
+            <div class="chart-container">
+                <h3>Findings by Severity Level</h3>
+                <div id="severity-chart">
+                    <div>                            <div id="severity-chart" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("severity-chart")) {                    Plotly.newPlot(                        "severity-chart",                        [{"alignmentgroup":"True","hovertemplate":"severity=%{x}\u003cbr\u003ecount=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Critical","marker":{"color":"#dc3545","pattern":{"shape":""}},"name":"Critical","offsetgroup":"Critical","orientation":"v","showlegend":true,"textposition":"auto","x":["Critical"],"xaxis":"x","y":[1],"yaxis":"y","type":"bar"},{"alignmentgroup":"True","hovertemplate":"severity=%{x}\u003cbr\u003ecount=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"High","marker":{"color":"#fd7e14","pattern":{"shape":""}},"name":"High","offsetgroup":"High","orientation":"v","showlegend":true,"textposition":"auto","x":["High"],"xaxis":"x","y":[1],"yaxis":"y","type":"bar"},{"alignmentgroup":"True","hovertemplate":"severity=%{x}\u003cbr\u003ecount=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Medium","marker":{"color":"#ffc107","pattern":{"shape":""}},"name":"Medium","offsetgroup":"Medium","orientation":"v","showlegend":true,"textposition":"auto","x":["Medium"],"xaxis":"x","y":[1],"yaxis":"y","type":"bar"},{"alignmentgroup":"True","hovertemplate":"severity=%{x}\u003cbr\u003ecount=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Low","marker":{"color":"#20c997","pattern":{"shape":""}},"name":"Low","offsetgroup":"Low","orientation":"v","showlegend":true,"textposition":"auto","x":["Low"],"xaxis":"x","y":[1],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmapgl":[{"type":"heatmapgl","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"severity"},"categoryorder":"array","categoryarray":["Critical","High","Medium","Low"]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"count"}},"legend":{"title":{"text":"severity"},"tracegroupgap":0},"title":{"text":"Findings by Severity Level"},"barmode":"relative","showlegend":false},                        {"responsive": true}                    )                };                            </script>        </div>
+                </div>
+            </div>
+            
+            
+            <div class="chart-container">
+                <h3>Findings by Status</h3>
+                <div id="status-chart">
+                    <p>Status data not available</p>
+                </div>
+            </div>
+            
+            
+            
+            <div class="chart-container">
+                <h3>Severity Distribution</h3>
+                <img src="severity_distribution.png" alt="Severity Distribution" style="width: 100%; max-width: 800px;">
+            </div>
+            
+        </section>
+
+        <!-- Detailed Findings -->
+        <section>
+            <h2>Detailed Findings</h2>
+            
+            <input type="text" id="searchInput" class="search-box" placeholder="Search findings by ID, name, severity, or URL...">
+            
+            <table id="findingsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vulnerability Name</th>
+                        <th>Severity</th>
+                        <th>Affected URL</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>VULN-001</td>
+                        <td>SQL Injection</td>
+                        <td>
+                            <span class="severity-critical">Critical</span>
+                        </td>
+                        <td>https://example.com/login</td>
+                        <td>Potential full database compromise and unauthorized access</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>VULN-002</td>
+                        <td>Cross-Site Scripting (XSS)</td>
+                        <td>
+                            <span class="severity-high">High</span>
+                        </td>
+                        <td>https://example.com/search</td>
+                        <td>Session hijacking and malicious script execution</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>VULN-003</td>
+                        <td>Missing Security Headers</td>
+                        <td>
+                            <span class="severity-medium">Medium</span>
+                        </td>
+                        <td>https://example.com/</td>
+                        <td>Increased risk of clickjacking and MIME sniffing</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>VULN-004</td>
+                        <td>Information Disclosure</td>
+                        <td>
+                            <span class="severity-low">Low</span>
+                        </td>
+                        <td>https://example.com/api/users</td>
+                        <td>Reveals system information to potential attackers</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination"></div>
+        </section>
+
+        <!-- Recommendations -->
+        <section>
+            <h2>Recommendations</h2>
+            <ul>
+                <li>Address Critical and High severity vulnerabilities immediately</li>
+                <li>Implement secure coding practices and security awareness training</li>
+                <li>Establish regular security assessment cycles</li>
+                <li>Implement proper input validation and output encoding</li>
+                <li>Ensure proper authentication and session management controls</li>
+                <li>Keep all components and dependencies up to date</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>Report generated on 2025-11-13 08:20:27 UTC by WebScanPro</p>
+        <p>This report contains confidential security information. Handle with care.</p>
+    </footer>
+
+    <script>
+        // Simple table search and pagination
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const table = document.getElementById('findingsTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            const pagination = document.getElementById('pagination');
+            
+            const itemsPerPage = 20;
+            let currentPage = 1;
+            
+            function filterTable() {
+                const filter = searchInput.value.toLowerCase();
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    let found = false;
+                    
+                    for (let j = 0; j < cells.length; j++) {
+                        if (cells[j].textContent.toLowerCase().includes(filter)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    rows[i].style.display = found ? '' : 'none';
+                }
+                
+                currentPage = 1;
+                updatePagination();
+            }
+            
+            function updatePagination() {
+                const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+                const totalPages = Math.ceil(visibleRows.length / itemsPerPage);
+                
+                // Show/hide rows based on current page
+                visibleRows.forEach((row, index) => {
+                    const page = Math.floor(index / itemsPerPage) + 1;
+                    row.style.display = page === currentPage ? '' : 'none';
+                });
+                
+                // Update pagination controls
+                pagination.innerHTML = '';
+                
+                if (totalPages > 1) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        const button = document.createElement('button');
+                        button.textContent = i;
+                        button.className = i === currentPage ? 'current' : '';
+                        button.onclick = function() {
+                            currentPage = i;
+                            updatePagination();
+                        };
+                        pagination.appendChild(button);
+                    }
+                }
+            }
+            
+            searchInput.addEventListener('keyup', filterTable);
+            updatePagination();
+        });
+    </script>
+</body>
+</html>
