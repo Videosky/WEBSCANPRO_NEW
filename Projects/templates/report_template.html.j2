@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project_name }} - {{ date }}</title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --critical: #dc3545;
+            --high: #fd7e14;
+            --medium: #ffc107;
+            --low: #20c997;
+            --info: #6c757d;
+        }
+        
+        .severity-critical { color: var(--critical); font-weight: bold; }
+        .severity-high { color: var(--high); font-weight: bold; }
+        .severity-medium { color: var(--medium); }
+        .severity-low { color: var(--low); }
+        .severity-info { color: var(--info); }
+        
+        .stat-card {
+            background: var(--accent-bg);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+        
+        .chart-container {
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: var(--accent-bg);
+            position: sticky;
+            top: 0;
+        }
+        
+        .search-box {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        
+        .pagination {
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .pagination button {
+            margin: 0 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+        }
+        
+        .pagination button.current {
+            background: var(--accent-bg);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ project_name }}</h1>
+        <p>Security Assessment Report - Generated on {{ date }}</p>
+    </header>
+
+    <main>
+        <!-- Executive Summary -->
+        <section>
+            <h2>Executive Summary</h2>
+            <div class="stat-card">
+                <strong>Total Findings:</strong> {{ report_data.total_findings }}<br>
+                <strong>Critical:</strong> <span class="severity-critical">{{ report_data.severity_counts.get('Critical', 0) }}</span> |
+                <strong>High:</strong> <span class="severity-high">{{ report_data.severity_counts.get('High', 0) }}</span> |
+                <strong>Medium:</strong> <span class="severity-medium">{{ report_data.severity_counts.get('Medium', 0) }}</span> |
+                <strong>Low:</strong> <span class="severity-low">{{ report_data.severity_counts.get('Low', 0) }}</span> |
+                <strong>Info:</strong> <span class="severity-info">{{ report_data.severity_counts.get('Info', 0) }}</span>
+            </div>
+            
+            <p>This report presents the results of the security assessment conducted on the target application. 
+            The assessment identified {{ report_data.total_findings }} security findings across various severity levels.</p>
+        </section>
+
+        <!-- Interactive Charts -->
+        <section>
+            <h2>Security Metrics</h2>
+            
+            <div class="chart-container">
+                <h3>Findings by Severity Level</h3>
+                <div id="severity-chart">
+                    {{ charts.severity_bar | safe }}
+                </div>
+            </div>
+            
+            {% if charts.status_pie %}
+            <div class="chart-container">
+                <h3>Findings by Status</h3>
+                <div id="status-chart">
+                    {{ charts.status_pie | safe }}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if images.severity_chart %}
+            <div class="chart-container">
+                <h3>Severity Distribution</h3>
+                <img src="{{ images.severity_chart }}" alt="Severity Distribution" style="width: 100%; max-width: 800px;">
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Detailed Findings -->
+        <section>
+            <h2>Detailed Findings</h2>
+            
+            <input type="text" id="searchInput" class="search-box" placeholder="Search findings by ID, name, severity, or URL...">
+            
+            <table id="findingsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vulnerability Name</th>
+                        <th>Severity</th>
+                        <th>Affected URL</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for finding in findings %}
+                    <tr>
+                        <td>{{ finding.vuln_id }}</td>
+                        <td>{{ finding.vuln_name }}</td>
+                        <td>
+                            <span class="severity-{{ finding.severity|lower }}">{{ finding.severity }}</span>
+                        </td>
+                        <td>{{ finding.affected_url }}</td>
+                        <td>{{ finding.impact }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination"></div>
+        </section>
+
+        <!-- Recommendations -->
+        <section>
+            <h2>Recommendations</h2>
+            <ul>
+                <li>Address Critical and High severity vulnerabilities immediately</li>
+                <li>Implement secure coding practices and security awareness training</li>
+                <li>Establish regular security assessment cycles</li>
+                <li>Implement proper input validation and output encoding</li>
+                <li>Ensure proper authentication and session management controls</li>
+                <li>Keep all components and dependencies up to date</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>Report generated on {{ report_data.generated_time }} by WebScanPro</p>
+        <p>This report contains confidential security information. Handle with care.</p>
+    </footer>
+
+    <script>
+        // Simple table search and pagination
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const table = document.getElementById('findingsTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            const pagination = document.getElementById('pagination');
+            
+            const itemsPerPage = 20;
+            let currentPage = 1;
+            
+            function filterTable() {
+                const filter = searchInput.value.toLowerCase();
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    let found = false;
+                    
+                    for (let j = 0; j < cells.length; j++) {
+                        if (cells[j].textContent.toLowerCase().includes(filter)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    rows[i].style.display = found ? '' : 'none';
+                }
+                
+                currentPage = 1;
+                updatePagination();
+            }
+            
+            function updatePagination() {
+                const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+                const totalPages = Math.ceil(visibleRows.length / itemsPerPage);
+                
+                // Show/hide rows based on current page
+                visibleRows.forEach((row, index) => {
+                    const page = Math.floor(index / itemsPerPage) + 1;
+                    row.style.display = page === currentPage ? '' : 'none';
+                });
+                
+                // Update pagination controls
+                pagination.innerHTML = '';
+                
+                if (totalPages > 1) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        const button = document.createElement('button');
+                        button.textContent = i;
+                        button.className = i === currentPage ? 'current' : '';
+                        button.onclick = function() {
+                            currentPage = i;
+                            updatePagination();
+                        };
+                        pagination.appendChild(button);
+                    }
+                }
+            }
+            
+            searchInput.addEventListener('keyup', filterTable);
+            updatePagination();
+        });
+    </script>
+</body>
+</html>
