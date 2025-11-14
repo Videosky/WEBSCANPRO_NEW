@@ -1,0 +1,31 @@
+{
+  "vulnerabilities": [
+    {
+      "vuln_id": "ZAP-001",
+      "vuln_name": "SQL Injection",
+      "severity": "High",
+      "description": "SQL injection vulnerability in login endpoint",
+      "affected_url": "https://example.com/login",
+      "timestamp": "2025-11-14 18:13:28",
+      "recommendation": "Use parameterized queries and input validation"
+    },
+    {
+      "vuln_id": "ZAP-002",
+      "vuln_name": "XSS",
+      "severity": "Medium",
+      "description": "Cross-site scripting in search functionality",
+      "affected_url": "https://example.com/search",
+      "timestamp": "2025-11-13 18:13:28",
+      "recommendation": "Implement output encoding"
+    },
+    {
+      "vuln_id": "ZAP-003",
+      "vuln_name": "Information Disclosure",
+      "severity": "Low",
+      "description": "Sensitive information exposed in error messages",
+      "affected_url": "https://example.com/api/users",
+      "timestamp": "2025-11-14 18:13:28",
+      "recommendation": "Implement proper error handling"
+    }
+  ]
+}

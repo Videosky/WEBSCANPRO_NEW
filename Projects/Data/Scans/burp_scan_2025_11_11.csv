@@ -1,0 +1,5 @@
+vuln_id,vuln_name,severity,description,affected_url,timestamp,recommendation
+BURP-001,SQL Injection,High,SQL injection in user registration form,https://example.com/register,2025-11-14 18:13:28,Use prepared statements and input validation
+BURP-002,CSRF,Medium,Missing CSRF protection in profile update,https://example.com/update_profile,2025-11-14 18:13:28,Add CSRF tokens to all state-changing requests
+BURP-003,Information Disclosure,Low,Directory listing enabled in images folder,https://example.com/images/,2025-11-14 18:13:28,Disable directory listing in server configuration
+BURP-004,Insecure Headers,Medium,Missing security headers in HTTP responses,https://example.com/,2025-11-14 18:13:28,Implement security headers like X-Content-Type-Options

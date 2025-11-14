@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<NessusClientData_v2>
+    <Report>
+        <ReportHost name="example.com">
+            <ReportItem>
+                <serialNumber>NESSUS-001</serialNumber>
+                <name>SSL/TLS Weak Cipher Suites</name>
+                <risk_factor>Medium</risk_factor>
+                <description>Server supports weak SSL/TLS cipher suites</description>
+                <host>https://example.com:443</host>
+                <solution>Disable weak cipher suites and use strong encryption</solution>
+            </ReportItem>
+            <ReportItem>
+                <serialNumber>NESSUS-002</serialNumber>
+                <name>HTTP Security Headers Missing</name>
+                <risk_factor>Low</risk_factor>
+                <description>Missing security headers in HTTP responses</description>
+                <host>https://example.com</host>
+                <solution>Implement security headers like HSTS, X-Frame-Options</solution>
+            </ReportItem>
+        </ReportHost>
+    </Report>
+</NessusClientData_v2>

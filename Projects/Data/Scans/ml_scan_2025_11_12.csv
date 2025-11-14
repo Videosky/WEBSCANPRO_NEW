@@ -1,0 +1,4 @@
+id,name,risk,detail,url,solution
+ML-001,XSS,Medium,Reflected XSS detected in contact form,https://example.com/contact,Implement proper input sanitization and output encoding
+ML-002,Insecure Cookies,Medium,Missing secure and httpOnly flags on session cookies,https://example.com/,Set secure and httpOnly flags on all cookies
+ML-003,Security Misconfiguration,Low,Default files and directories accessible,https://example.com/admin/,Remove or secure default files and directories
