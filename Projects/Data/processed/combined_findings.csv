@@ -1,0 +1,11 @@
+vuln_id,vuln_name,severity,description,affected_url,scan_source,timestamp,recommendation,scanner_count,original_scan_source
+BURP-001,SQL Injection,High,SQL injection in user registration form,https://example.com/register,BURP,2025-11-14 18:13:28,Use prepared statements and input validation,1,BURP
+BURP-002,CSRF,Medium,Missing CSRF protection in profile update,https://example.com/update_profile,BURP,2025-11-14 18:13:28,Add CSRF tokens to all state-changing requests,1,BURP
+BURP-003,Information Disclosure,Low,Directory listing enabled in images folder,https://example.com/images/,BURP,2025-11-14 18:13:28,Disable directory listing in server configuration,1,BURP
+BURP-004,Insecure Headers,Medium,Missing security headers in HTTP responses,https://example.com/,BURP,2025-11-14 18:13:28,Implement security headers like X-Content-Type-Options,1,BURP
+ML-001,XSS,Medium,Reflected XSS detected in contact form,https://example.com/contact,ML,2025-11-14 18:16:18,Implement proper input sanitization and output encoding,1,ML
+ML-002,Insecure Cookies,Medium,Missing secure and httpOnly flags on session cookies,https://example.com/,ML,2025-11-14 18:16:18,Set secure and httpOnly flags on all cookies,1,ML
+ML-003,Security Misconfiguration,Low,Default files and directories accessible,https://example.com/admin/,ML,2025-11-14 18:16:18,Remove or secure default files and directories,1,ML
+ZAP-001,SQL Injection,High,SQL injection vulnerability in login endpoint,https://example.com/login,ZAP,2025-11-14 18:13:28,Use parameterized queries and input validation,1,ZAP
+ZAP-002,XSS,Medium,Cross-site scripting in search functionality,https://example.com/search,ZAP,2025-11-13 18:13:28,Implement output encoding,1,ZAP
+ZAP-003,Information Disclosure,Low,Sensitive information exposed in error messages,https://example.com/api/users,ZAP,2025-11-14 18:13:28,Implement proper error handling,1,ZAP
