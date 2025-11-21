@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro - Advanced Web Vulnerability Scanner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --secondary: #8B5CF6;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.125rem;
+            color: #6B7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #F3F4F6;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: #6B7280;
+            line-height: 1.6;
+        }
+
+        /* Scanner Preview */
+        .scanner-preview {
+            padding: 6rem 2rem;
+            background: var(--light);
+        }
+
+        .preview-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-header {
+            background: var(--dark);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .preview-content {
+            padding: 3rem;
+        }
+
+        .scan-form-preview {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            padding: 0.875rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 6rem 2rem;
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #D1D5DB;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            color: #9CA3AF;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .scan-form-preview {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-shield-alt"></i>
+                WebScanPro
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#scanner">Scanner</a>
+                <a href="#pricing">Pricing</a>
+                <a href="/dashboard">Dashboard</a>
+            </div>
+            <div class="auth-buttons">
+                <a href="/login" class="btn btn-outline">Sign In</a>
+                <a href="/register" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Advanced Web Vulnerability Scanner</h1>
+            <p>Protect your web applications with AI-powered security scanning. Detect SQL injection, XSS, authentication flaws, and more with enterprise-grade accuracy.</p>
+            <div class="hero-buttons">
+                <a href="/register" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Start Scanning Free
+                </a>
+                <a href="#features" class="btn btn-outline" style="background: rgba(255,255,255,0.1); color: white; border-color: white;">
+                    <i class="fas fa-play-circle"></i>
+                    Watch Demo
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <h2>Enterprise-Grade Security Features</h2>
+            <p>Comprehensive vulnerability detection powered by advanced machine learning algorithms</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3>SQL Injection Detection</h3>
+                <p>Advanced SQLi detection with pattern recognition and behavioral analysis to protect your databases.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>XSS Protection</h3>
+                <p>Comprehensive Cross-Site Scripting detection with DOM-based and reflected XSS analysis.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3>Authentication Testing</h3>
+                <p>Identify weak authentication mechanisms, session management issues, and credential vulnerabilities.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <h3>Vulnerability Database</h3>
+                <p>Continuously updated database of 10,000+ vulnerability patterns and security threats.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI-Powered Analysis</h3>
+                <p>Machine learning algorithms that adapt and learn from new attack patterns in real-time.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>Detailed Reporting</h3>
+                <p>Comprehensive reports with risk scores, remediation guidance, and executive summaries.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scanner Preview -->
+    <section class="scanner-preview" id="scanner">
+        <div class="section-title">
+            <h2>Try Our Security Scanner</h2>
+            <p>See how WebScanPro identifies vulnerabilities in real-time</p>
+        </div>
+        <div class="preview-container animate-on-scroll">
+            <div class="preview-header">
+                <i class="fas fa-shield-alt"></i>
+                <span>WebScanPro Security Scanner</span>
+            </div>
+            <div class="preview-content">
+                <div class="scan-form-preview">
+                    <div class="form-group">
+                        <label for="demo-url">Target URL</label>
+                        <input type="url" id="demo-url" class="form-control" placeholder="https://example.com" value="http://testphp.vulnweb.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="demo-scan-type">Scan Type</label>
+                        <select id="demo-scan-type" class="form-control">
+                            <option value="full">Full Security Scan</option>
+                            <option value="sql">SQL Injection Only</option>
+                            <option value="xss">XSS Detection</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" style="align-self: end;" onclick="showDemoAlert()">
+                        <i class="fas fa-play"></i>
+                        Start Scan
+                    </button>
+                </div>
+                <div style="background: #F9FAFB; padding: 2rem; border-radius: 8px; text-align: center;">
+                    <i class="fas fa-lock" style="font-size: 3rem; color: #9CA3AF; margin-bottom: 1rem;"></i>
+                    <h3 style="color: #6B7280; margin-bottom: 0.5rem;">Sign Up to Access Scanner</h3>
+                    <p style="color: #9CA3AF;">Create a free account to start scanning your websites for vulnerabilities</p>
+                    <a href="/register" class="btn btn-primary" style="margin-top: 1rem;">
+                        <i class="fas fa-user-plus"></i>
+                        Create Free Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <h2>Ready to Secure Your Applications?</h2>
+        <p>Join thousands of developers and security professionals protecting their web applications</p>
+        <a href="/register" class="btn btn-primary" style="background: white; color: var(--primary);">
+            <i class="fas fa-shield-alt"></i>
+            Start Your Free Trial
+        </a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>WebScanPro</h3>
+                <p>Advanced web vulnerability scanner for modern applications. Enterprise-grade security made accessible.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Product</h3>
+                <ul class="footer-links">
+                    <li><a href="/features">Features</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
+                    <li><a href="/api">API</a></li>
+                    <li><a href="/integrations">Integrations</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="/documentation">Documentation</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/guides">Security Guides</a></li>
+                    <li><a href="/support">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul class="footer-links">
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/careers">Careers</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/privacy">Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 WebScanPro. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll animations
+        function checkScroll() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Navbar background on scroll
+        function updateNavbar() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+            }
+        }
+
+        // Demo alert
+        function showDemoAlert() {
+            alert('🚀 This is a demo! Sign up for a free account to access the full WebScanPro vulnerability scanner.');
+        }
+
+        // Initialize
+        window.addEventListener('scroll', () => {
+            checkScroll();
+            updateNavbar();
+        });
+
+        window.addEventListener('load', () => {
+            checkScroll();
+            updateNavbar();
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
