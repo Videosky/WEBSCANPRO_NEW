@@ -1,2 +1,5 @@
-[tool.vercel]
-entrypoint = "depolyment.update_front:app"
+[project]
+name = "webscanpro"
+version = "0.1.0"
+description = "WebScanPro"
+requires-python = ">=3.11"
