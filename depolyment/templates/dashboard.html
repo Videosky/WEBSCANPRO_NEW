@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2B2D42;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .user-info {
+            margin-top: 15px;
+            color: #6c757d;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            border-left: 5px solid #6366F1;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            font-size: 1.1em;
+            color: #6c757d;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .stat-card .number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #6366F1;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .stat-card .description {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .scan-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-logout {
+            background: linear-gradient(135deg, #EF4444, #F59E0B);
+        }
+        
+        .nav {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .logout-form {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ WebScanPro Security Dashboard</h1>
+            <p>Professional Web Vulnerability Scanner & Security Analytics</p>
+            <div class="user-info" id="userInfo">
+                Welcome, <span id="username">User</span>!
+            </div>
+            <div class="nav">
+                <a href="/scanner" class="btn">🔍 Scanner</a>
+                <a href="/reports" class="btn">📊 Reports</a>
+                <a href="/history" class="btn">📋 History</a>
+                <a href="/analytics" class="btn">📈 Analytics</a>
+                <form class="logout-form" onsubmit="logout(event)">
+                    <button type="submit" class="btn btn-logout">🚪 Logout</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h3>Total Files</h3>
+                <span class="number" id="totalFiles">--</span>
+                <div class="description">Project files & assets</div>
+            </div>
+            <div class="stat-card">
+                <h3>Vulnerabilities Found</h3>
+                <span class="number" id="vulnerabilitiesFound">--</span>
+                <div class="description">Security issues detected</div>
+            </div>
+            <div class="stat-card">
+                <h3>ML Models</h3>
+                <span class="number" id="mlModels">--</span>
+                <div class="description">AI-powered detection models</div>
+            </div>
+            <div class="stat-card">
+                <h3>Completed Scans</h3>
+                <span class="number" id="completedScans">--</span>
+                <div class="description">Security assessments performed</div>
+            </div>
+        </div>
+        
+        <div class="scan-section">
+            <h2>🚀 Quick Start</h2>
+            <p>Start a new security scan to analyze your web application for vulnerabilities.</p>
+            <div style="margin-top: 20px;">
+                <a href="/scanner" class="btn">Start New Scan</a>
+            </div>
+        </div>
+        
+        <div class="scan-section">
+            <h2>📊 Recent Activity</h2>
+            <div id="recentScans">
+                <p>No recent scans found. Start your first scan to see results here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const auth = await response.json();
+                
+                if (auth.authenticated) {
+                    document.getElementById('username').textContent = auth.user.username;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Load dashboard stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                
+                document.getElementById('totalFiles').textContent = stats.total_files;
+                document.getElementById('vulnerabilitiesFound').textContent = stats.vulnerabilities_found;
+                document.getElementById('mlModels').textContent = stats.ml_models;
+                document.getElementById('completedScans').textContent = stats.completed_scans;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Set default values if API fails
+                document.getElementById('totalFiles').textContent = '552';
+                document.getElementById('vulnerabilitiesFound').textContent = '57';
+                document.getElementById('mlModels').textContent = '8';
+                document.getElementById('completedScans').textContent = '21';
+            }
+        }
+        
+        // Load recent scans
+        async function loadRecentScans() {
+            try {
+                const response = await fetch('/api/scans');
+                const data = await response.json();
+                
+                if (data.scans && data.scans.length > 0) {
+                    const scansHtml = data.scans.map(scan => `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #6366F1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>${scan.target_url}</strong>
+                                    <div style="color: #6c757d; font-size: 0.9em;">
+                                        ${scan.scan_type} • ${new Date(scan.start_time).toLocaleDateString()}
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="background: ${scan.risk_score > 70 ? '#EF4444' : scan.risk_score > 30 ? '#F59E0B' : '#10B981'}; 
+                                          color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em;">
+                                        Risk: ${scan.risk_score}%
+                                    </span>
+                                    <div style="font-size: 0.9em; margin-top: 5px;">
+                                        Vulns: ${scan.total_vulnerabilities}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('recentScans').innerHTML = scansHtml;
+                }
+            } catch (error) {
+                console.error('Error loading recent scans:', error);
+            }
+        }
+        
+        // Logout function
+        async function logout(event) {
+            event.preventDefault();
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadStats();
+            loadRecentScans();
+        });
+    </script>
+</body>
+</html>

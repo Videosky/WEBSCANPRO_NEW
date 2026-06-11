@@ -1,0 +1,48 @@
+<h2>Scan History</h2>
+
+<table border="1">
+<tr>
+<th>Scan ID</th>
+<th>Target</th>
+<th>Risk</th>
+<th>Vulnerabilities</th>
+<th>Status</th>
+<th>Time</th>
+</tr>
+
+<tbody id="historyTable"></tbody>
+
+</table>
+
+<script>
+
+async function loadHistory(){
+
+let res = await fetch('/api/history/realtime')
+let data = await res.json()
+
+let html=""
+
+data.forEach(scan=>{
+
+html+=`
+<tr>
+<td>${scan.scan_id}</td>
+<td>${scan.target}</td>
+<td>${scan.risk}%</td>
+<td>${scan.vulnerabilities}</td>
+<td>${scan.status}</td>
+<td>${scan.time}</td>
+</tr>
+`
+})
+
+document.getElementById("historyTable").innerHTML=html
+
+}
+
+setInterval(loadHistory,2000)
+
+loadHistory()
+
+</script>

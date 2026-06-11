@@ -1,0 +1,56 @@
+<h2>Analytics</h2>
+
+<canvas id="chart"></canvas>
+
+<h3>Live Scans</h3>
+
+<div id="live"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+let chart
+
+async function loadAnalytics(){
+
+let res=await fetch('/api/analytics/realtime')
+
+let data=await res.json()
+
+if(!chart){
+
+chart=new Chart(document.getElementById("chart"),{
+type:'bar',
+data:{
+labels:Object.keys(data.severity),
+datasets:[{
+data:Object.values(data.severity)
+}]
+}
+})
+
+}
+
+let liveHTML=""
+
+data.live.forEach(scan=>{
+
+liveHTML+=`
+<p>
+${scan.target}
+Progress: ${scan.progress}%
+Status: ${scan.status}
+</p>
+`
+})
+
+document.getElementById("live").innerHTML=liveHTML
+
+}
+
+setInterval(loadAnalytics,2000)
+
+loadAnalytics()
+
+</script>

@@ -1,0 +1,48 @@
+<h2>Reports</h2>
+
+<div id="reports"></div>
+
+<script>
+
+async function loadReports(){
+
+let res=await fetch('/api/reports/realtime')
+
+let data=await res.json()
+
+let html=""
+
+data.forEach(report=>{
+
+html+=`
+<h3>${report.target}</h3>
+Risk: ${report.risk}%
+
+<ul>
+`
+
+report.vulnerabilities.forEach(v=>{
+
+html+=`
+<li>
+${v.type}
+Severity: ${v.severity}
+Parameter: ${v.parameter}
+Confidence: ${v.confidence}
+</li>
+`
+})
+
+html+="</ul>"
+
+})
+
+document.getElementById("reports").innerHTML=html
+
+}
+
+setInterval(loadReports,2000)
+
+loadReports()
+
+</script>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4B5563;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #6366F1;
+        }
+        
+        .input-error {
+            border-color: #DC2626 !important;
+            background-color: #FEF2F2;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            color: #6B7280;
+        }
+        
+        .links a {
+            color: #6366F1;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .error {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border-left: 4px solid #DC2626;
+        }
+        
+        .success {
+            background: #D1FAE5;
+            color: #059669;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border-left: 4px solid #059669;
+        }
+        
+        .field-error {
+            color: #DC2626;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        
+        .forgot-password a {
+            color: #6366F1;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🛡️ WebScanPro</h1>
+            <p style="color: #6B7280; margin-top: 5px;">Sign in to your account</p>
+        </div>
+        
+        <div id="errorMessage" class="error"></div>
+        <div id="successMessage" class="success"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Enter your username or email">
+                <div class="field-error" id="usernameError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Enter your password">
+                <div class="field-error" id="passwordError"></div>
+            </div>
+            
+            <div class="forgot-password">
+                <a href="/forgot-password">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">
+                Sign In
+            </button>
+        </form>
+        
+        <div class="links">
+            <p>Don't have an account? <a href="/register">Register here</a></p>
+            <p><a href="/">Back to Home</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration for login
+        const loginConfig = {
+            minUsernameLength: 3,
+            minPasswordLength: 1 // Just ensure it's not empty
+        };
+
+        // Get DOM elements
+        const form = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+        const usernameError = document.getElementById('usernameError');
+        const passwordError = document.getElementById('passwordError');
+
+        // Basic form validation
+        function validateForm() {
+            let isValid = true;
+            
+            // Clear previous errors
+            usernameError.style.display = 'none';
+            passwordError.style.display = 'none';
+            usernameInput.classList.remove('input-error');
+            passwordInput.classList.remove('input-error');
+            
+            // Validate username/email
+            const username = usernameInput.value.trim();
+            if (!username) {
+                usernameError.textContent = 'Username or email is required';
+                usernameError.style.display = 'block';
+                usernameInput.classList.add('input-error');
+                isValid = false;
+            } else if (username.length < loginConfig.minUsernameLength) {
+                usernameError.textContent = `Username must be at least ${loginConfig.minUsernameLength} characters`;
+                usernameError.style.display = 'block';
+                usernameInput.classList.add('input-error');
+                isValid = false;
+            }
+            
+            // Validate password
+            const password = passwordInput.value;
+            if (!password) {
+                passwordError.textContent = 'Password is required';
+                passwordError.style.display = 'block';
+                passwordInput.classList.add('input-error');
+                isValid = false;
+            } else if (password.length < loginConfig.minPasswordLength) {
+                passwordError.textContent = 'Password cannot be empty';
+                passwordError.style.display = 'block';
+                passwordInput.classList.add('input-error');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Enhanced login with better error handling
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Clear previous messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            // Validate form
+            if (!validateForm()) {
+                errorDiv.textContent = 'Please fix the errors above';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = '';
+            
+            try {
+                // Show network latency indicator
+                const startTime = Date.now();
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        username, 
+                        password,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                // Add small delay for better UX if response was too fast
+                if (responseTime < 500) {
+                    await new Promise(resolve => setTimeout(resolve, 500 - responseTime));
+                }
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successDiv.textContent = data.message || 'Login successful!';
+                    successDiv.style.display = 'block';
+                    
+                    // Store authentication token if provided
+                    if (data.token) {
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user || {}));
+                    }
+                    
+                    // Clear any stored password
+                    passwordInput.value = '';
+                    
+                    // Redirect after successful login
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/dashboard';
+                    }, 1000);
+                    
+                } else {
+                    // Handle specific error cases
+                    let errorMessage = 'Login failed';
+                    
+                    if (data.error) {
+                        errorMessage = data.error;
+                        
+                        // Provide more helpful messages
+                        if (data.error.toLowerCase().includes('invalid') || 
+                            data.error.toLowerCase().includes('incorrect') ||
+                            data.error.toLowerCase().includes('credentials')) {
+                            errorMessage = 'Invalid username/email or password. Please try again.';
+                            
+                            // Highlight both fields
+                            usernameInput.classList.add('input-error');
+                            passwordInput.classList.add('input-error');
+                            
+                            // Suggest reset password
+                            if (data.error.toLowerCase().includes('password')) {
+                                passwordError.textContent = 'Incorrect password. Forgot your password?';
+                                passwordError.style.display = 'block';
+                            }
+                        } else if (data.error.toLowerCase().includes('user') || 
+                                 data.error.toLowerCase().includes('not found') ||
+                                 data.error.toLowerCase().includes('exist')) {
+                            errorMessage = 'Account not found. Please check your username/email or register.';
+                            usernameInput.classList.add('input-error');
+                        } else if (data.error.toLowerCase().includes('locked') || 
+                                 data.error.toLowerCase().includes('suspended')) {
+                            errorMessage = 'Account is temporarily locked. Please try again later or contact support.';
+                        } else if (data.error.toLowerCase().includes('verify') || 
+                                 data.error.toLowerCase().includes('confirmed')) {
+                            errorMessage = 'Please verify your email address before logging in.';
+                        }
+                    }
+                    
+                    errorDiv.textContent = errorMessage;
+                    errorDiv.style.display = 'block';
+                    
+                    // Focus on the first error field
+                    if (usernameInput.classList.contains('input-error')) {
+                        usernameInput.focus();
+                    } else if (passwordInput.classList.contains('input-error')) {
+                        passwordInput.focus();
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // Determine the type of network error
+                let errorMessage = 'Network error. Please try again.';
+                
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Cannot connect to server. Please check your internet connection.';
+                } else if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. Please try again.';
+                }
+                
+                errorDiv.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+                
+                // Enable retry
+                loginBtn.textContent = 'Try Again';
+                
+            } finally {
+                // Reset button state after a short delay
+                setTimeout(() => {
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove('loading');
+                    loginBtn.textContent = 'Sign In';
+                }, 500);
+            }
+        });
+
+        // Clear error when user starts typing
+        usernameInput.addEventListener('input', () => {
+            usernameInput.classList.remove('input-error');
+            usernameError.style.display = 'none';
+            errorDiv.style.display = 'none';
+        });
+        
+        passwordInput.addEventListener('input', () => {
+            passwordInput.classList.remove('input-error');
+            passwordError.style.display = 'none';
+            errorDiv.style.display = 'none';
+        });
+
+        // Enter key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !loginBtn.disabled) {
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Auto-focus username field on page load
+        usernameInput.focus();
+        
+        // Check for stored username from registration
+        window.addEventListener('load', () => {
+            const registeredUsername = localStorage.getItem('registeredUsername');
+            if (registeredUsername) {
+                usernameInput.value = registeredUsername;
+                localStorage.removeItem('registeredUsername');
+                passwordInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
