@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "depolyment.update_front:app"
