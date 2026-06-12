@@ -1,48 +1,788 @@
-<h2>Reports</h2>
-
-<div id="reports"></div>
-
-<script>
-
-async function loadReports(){
-
-let res=await fetch('/api/reports/realtime')
-
-let data=await res.json()
-
-let html=""
-
-data.forEach(report=>{
-
-html+=`
-<h3>${report.target}</h3>
-Risk: ${report.risk}%
-
-<ul>
-`
-
-report.vulnerabilities.forEach(v=>{
-
-html+=`
-<li>
-${v.type}
-Severity: ${v.severity}
-Parameter: ${v.parameter}
-Confidence: ${v.confidence}
-</li>
-`
-})
-
-html+="</ul>"
-
-})
-
-document.getElementById("reports").innerHTML=html
-
-}
-
-setInterval(loadReports,2000)
-
-loadReports()
-
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro - Security Reports</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-logout {
+            background: linear-gradient(135deg, #EF4444, #F59E0B);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        
+        .logout-form {
+            display: inline;
+        }
+        
+        .reports-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .report-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-input, .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .report-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .report-header {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .risk-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .risk-critical { background: #EF4444; }
+        .risk-high { background: #F59E0B; }
+        .risk-medium { background: #3B82F6; }
+        .risk-low { background: #10B981; }
+        
+        .report-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-right: 80px;
+        }
+        
+        .report-url {
+            font-size: 0.85em;
+            opacity: 0.9;
+            word-break: break-all;
+        }
+        
+        .report-body {
+            padding: 20px;
+        }
+        
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #6366F1;
+        }
+        
+        .stat-label {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .vuln-summary {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .vuln-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.85em;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-view { background: #6366F1; color: white; }
+        .btn-pdf { background: #EF4444; color: white; }
+        .btn-csv { background: #10B981; color: white; }
+        .btn-json { background: #F59E0B; color: white; }
+        .btn-html { background: #8B5CF6; color: white; }
+        
+        .summary-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .summary-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+        }
+        
+        .summary-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #6366F1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .close:hover {
+            opacity: 0.7;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .no-reports {
+            text-align: center;
+            padding: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+        }
+        
+        .no-reports h3 {
+            color: #6366F1;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-actions {
+                flex-wrap: wrap;
+            }
+            
+            .action-btn {
+                min-width: calc(33% - 10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Security Reports</h1>
+            <p>Generate, download, and manage comprehensive security assessment reports</p>
+            <div class="nav">
+                <a href="/dashboard" class="btn">📊 Dashboard</a>
+                <a href="/scanner" class="btn">🔍 Scanner</a>
+                <a href="/history" class="btn">📋 History</a>
+                <a href="/analytics" class="btn">📈 Analytics</a>
+                <button onclick="refreshReports()" class="btn btn-primary">🔄 Refresh</button>
+                <form class="logout-form" onsubmit="logout(event)">
+                    <button type="submit" class="btn btn-logout">🚪 Logout</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <h2>📊 Report Summary</h2>
+            <div class="summary-stats" id="summaryStats">
+                <div class="summary-card">
+                    <div class="number" id="totalReports">0</div>
+                    <div>Total Reports</div>
+                </div>
+                <div class="summary-card">
+                    <div class="number" id="totalVulns">0</div>
+                    <div>Total Vulnerabilities</div>
+                </div>
+                <div class="summary-card">
+                    <div class="number" id="avgRiskScore">0%</div>
+                    <div>Average Risk Score</div>
+                </div>
+                <div class="summary-card">
+                    <div class="number" id="criticalCount">0</div>
+                    <div>Critical Issues</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reports-header">
+            <h2>📋 Available Reports</h2>
+            <div class="report-filters">
+                <input type="text" id="searchFilter" placeholder="🔍 Search by URL..." class="filter-input">
+                <select id="riskFilter" class="filter-select">
+                    <option value="all">All Risk Levels</option>
+                    <option value="critical">Critical Risk</option>
+                    <option value="high">High Risk</option>
+                    <option value="medium">Medium Risk</option>
+                    <option value="low">Low Risk</option>
+                </select>
+                <select id="sortBy" class="filter-select">
+                    <option value="date_desc">Newest First</option>
+                    <option value="date_asc">Oldest First</option>
+                    <option value="risk_desc">Highest Risk First</option>
+                    <option value="risk_asc">Lowest Risk First</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="reportsGrid" class="reports-grid">
+            <div class="loading">Loading reports...</div>
+        </div>
+    </div>
+    
+    <!-- Report Detail Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Report Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                Loading...
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allScans = [];
+        let currentFilters = {
+            search: '',
+            risk: 'all',
+            sort: 'date_desc'
+        };
+        
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const auth = await response.json();
+                
+                if (!auth.authenticated) {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Load all scans
+        async function loadScans() {
+            try {
+                const response = await fetch('/api/scans');
+                const data = await response.json();
+                allScans = data.scans || [];
+                
+                updateSummaryStats();
+                renderReports();
+            } catch (error) {
+                console.error('Error loading scans:', error);
+                document.getElementById('reportsGrid').innerHTML = `
+                    <div class="no-reports">
+                        <h3>❌ Error Loading Reports</h3>
+                        <p>Unable to load scan reports. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update summary statistics
+        function updateSummaryStats() {
+            const totalReports = allScans.length;
+            const totalVulns = allScans.reduce((sum, scan) => sum + (scan.total_vulnerabilities || 0), 0);
+            const avgRisk = allScans.reduce((sum, scan) => sum + (scan.risk_score || 0), 0) / (totalReports || 1);
+            const criticalCount = allScans.reduce((sum, scan) => sum + (scan.critical_count || 0), 0);
+            
+            document.getElementById('totalReports').textContent = totalReports;
+            document.getElementById('totalVulns').textContent = totalVulns;
+            document.getElementById('avgRiskScore').textContent = Math.round(avgRisk) + '%';
+            document.getElementById('criticalCount').textContent = criticalCount;
+        }
+        
+        // Filter and sort scans
+        function getFilteredScans() {
+            let filtered = [...allScans];
+            
+            // Apply search filter
+            if (currentFilters.search) {
+                filtered = filtered.filter(scan => 
+                    scan.target_url.toLowerCase().includes(currentFilters.search.toLowerCase())
+                );
+            }
+            
+            // Apply risk filter
+            if (currentFilters.risk !== 'all') {
+                filtered = filtered.filter(scan => {
+                    const riskScore = scan.risk_score || 0;
+                    if (currentFilters.risk === 'critical') return riskScore >= 80;
+                    if (currentFilters.risk === 'high') return riskScore >= 60 && riskScore < 80;
+                    if (currentFilters.risk === 'medium') return riskScore >= 30 && riskScore < 60;
+                    if (currentFilters.risk === 'low') return riskScore < 30;
+                    return true;
+                });
+            }
+            
+            // Apply sorting
+            switch(currentFilters.sort) {
+                case 'date_desc':
+                    filtered.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+                    break;
+                case 'date_asc':
+                    filtered.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+                    break;
+                case 'risk_desc':
+                    filtered.sort((a, b) => (b.risk_score || 0) - (a.risk_score || 0));
+                    break;
+                case 'risk_asc':
+                    filtered.sort((a, b) => (a.risk_score || 0) - (b.risk_score || 0));
+                    break;
+            }
+            
+            return filtered;
+        }
+        
+        // Render reports
+        function renderReports() {
+            const filteredScans = getFilteredScans();
+            const reportsGrid = document.getElementById('reportsGrid');
+            
+            if (filteredScans.length === 0) {
+                reportsGrid.innerHTML = `
+                    <div class="no-reports">
+                        <h3>📭 No Reports Found</h3>
+                        <p>No scans match your filters. Try adjusting your search criteria or start a new scan.</p>
+                        <a href="/scanner" class="btn" style="margin-top: 20px; display: inline-block;">Start New Scan</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            const reportsHtml = filteredScans.map(scan => {
+                const riskScore = scan.risk_score || 0;
+                let riskClass = 'risk-low';
+                if (riskScore >= 80) riskClass = 'risk-critical';
+                else if (riskScore >= 60) riskClass = 'risk-high';
+                else if (riskScore >= 30) riskClass = 'risk-medium';
+                
+                const scanDate = new Date(scan.start_time);
+                const formattedDate = scanDate.toLocaleDateString();
+                const formattedTime = scanDate.toLocaleTimeString();
+                
+                return `
+                    <div class="report-card">
+                        <div class="report-header">
+                            <span class="risk-badge ${riskClass}">Risk: ${riskScore}%</span>
+                            <div class="report-title">Security Assessment Report</div>
+                            <div class="report-url">${scan.target_url}</div>
+                        </div>
+                        <div class="report-body">
+                            <div class="report-stats">
+                                <div class="stat">
+                                    <div class="stat-value">${scan.total_vulnerabilities || 0}</div>
+                                    <div class="stat-label">Total Vulns</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">${scan.critical_count || 0}</div>
+                                    <div class="stat-label">Critical</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">${scan.high_count || 0}</div>
+                                    <div class="stat-label">High</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">${scan.medium_count || 0}</div>
+                                    <div class="stat-label">Medium</div>
+                                </div>
+                            </div>
+                            <div class="vuln-summary">
+                                <div class="vuln-item">
+                                    <span>📅 Date:</span>
+                                    <span>${formattedDate} at ${formattedTime}</span>
+                                </div>
+                                <div class="vuln-item">
+                                    <span>🔍 Scan Type:</span>
+                                    <span>${scan.scan_type || 'Full Scan'}</span>
+                                </div>
+                                <div class="vuln-item">
+                                    <span>📊 Status:</span>
+                                    <span>${scan.status || 'Completed'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="action-btn btn-view" onclick="viewReport('${scan.scan_id}')">📄 View</button>
+                            <button class="action-btn btn-pdf" onclick="downloadReport('${scan.scan_id}', 'pdf')">📑 PDF</button>
+                            <button class="action-btn btn-csv" onclick="downloadReport('${scan.scan_id}', 'csv')">📊 CSV</button>
+                            <button class="action-btn btn-json" onclick="downloadReport('${scan.scan_id}', 'json')">📋 JSON</button>
+                            <button class="action-btn btn-html" onclick="downloadReport('${scan.scan_id}', 'html')">🌐 HTML</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            reportsGrid.innerHTML = reportsHtml;
+        }
+        
+        // View full report in modal
+        async function viewReport(scanId) {
+            try {
+                const response = await fetch(`/api/scan/${scanId}/report`);
+                const reportData = await response.json();
+                
+                const modal = document.getElementById('reportModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+                
+                modalTitle.textContent = `Report: ${reportData.target_url || scanId}`;
+                
+                const riskScore = reportData.risk_score || 0;
+                let riskColor = '';
+                if (riskScore >= 80) riskColor = '#EF4444';
+                else if (riskScore >= 60) riskColor = '#F59E0B';
+                else if (riskScore >= 30) riskColor = '#3B82F6';
+                else riskColor = '#10B981';
+                
+                modalBody.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3>Scan Information</h3>
+                        <table style="width: 100%; margin-top: 10px;">
+                            <tr><td><strong>Target URL:</strong></td><td>${reportData.target_url || 'N/A'}</td></tr>
+                            <tr><td><strong>Scan Type:</strong></td><td>${reportData.scan_type || 'N/A'}</td></tr>
+                            <tr><td><strong>Start Time:</strong></td><td>${new Date(reportData.start_time).toLocaleString()}</td></tr>
+                            <tr><td><strong>End Time:</strong></td><td>${reportData.end_time ? new Date(reportData.end_time).toLocaleString() : 'N/A'}</td></tr>
+                            <tr><td><strong>Risk Score:</strong></td><td><span style="background: ${riskColor}; color: white; padding: 5px 12px; border-radius: 20px;">${riskScore}%</span></td></tr>
+                            <tr><td><strong>Total Vulnerabilities:</strong></td><td>${reportData.total_vulnerabilities || 0}</td></tr>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3>Vulnerability Summary</h3>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 10px;">
+                            <div style="text-align: center; padding: 15px; background: #fee; border-radius: 10px;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #EF4444;">${reportData.critical_count || 0}</div>
+                                <div>Critical</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #fff3cd; border-radius: 10px;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #F59E0B;">${reportData.high_count || 0}</div>
+                                <div>High</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #d1ecf1; border-radius: 10px;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #3B82F6;">${reportData.medium_count || 0}</div>
+                                <div>Medium</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #d4edda; border-radius: 10px;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #10B981;">${reportData.low_count || 0}</div>
+                                <div>Low</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${reportData.results && reportData.results.length > 0 ? `
+                        <div>
+                            <h3>Detected Vulnerabilities</h3>
+                            <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #6366F1; color: white;">
+                                        <th style="padding: 10px; text-align: left;">Type</th>
+                                        <th style="padding: 10px; text-align left;">Severity</th>
+                                        <th style="padding: 10px; text-align: left;">Parameter</th>
+                                        <th style="padding: 10px; text-align: left;">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${reportData.results.map(vuln => `
+                                        <tr style="border-bottom: 1px solid #e0e0e0;">
+                                            <td style="padding: 10px;">${vuln.type}</td>
+                                            <td style="padding: 10px;">
+                                                <span class="severity-badge severity-${vuln.severity.toLowerCase()}">${vuln.severity}</span>
+                                            </td>
+                                            <td style="padding: 10px;">${vuln.parameter || 'N/A'}</td>
+                                            <td style="padding: 10px;">${vuln.description || 'N/A'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : '<p>No vulnerabilities detected in this scan.</p>'}
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="downloadReport('${scanId}', 'pdf')" class="action-btn btn-pdf" style="padding: 10px 20px;">📑 Download PDF</button>
+                        <button onclick="downloadReport('${scanId}', 'csv')" class="action-btn btn-csv" style="padding: 10px 20px;">📊 Download CSV</button>
+                        <button onclick="downloadReport('${scanId}', 'json')" class="action-btn btn-json" style="padding: 10px 20px;">📋 Download JSON</button>
+                        <button onclick="downloadReport('${scanId}', 'html')" class="action-btn btn-html" style="padding: 10px 20px;">🌐 Download HTML</button>
+                    </div>
+                `;
+                
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading report:', error);
+                alert('Failed to load report details');
+            }
+        }
+        
+        // Download report
+        async function downloadReport(scanId, format) {
+            try {
+                window.location.href = `/api/scan/${scanId}/download/${format}`;
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert(`Failed to download ${format.toUpperCase()} report`);
+            }
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+        
+        // Refresh reports
+        async function refreshReports() {
+            const container = document.querySelector('.container');
+            container.classList.add('refreshing');
+            await loadScans();
+            setTimeout(() => container.classList.remove('refreshing'), 500);
+        }
+        
+        // Logout
+        async function logout(event) {
+            event.preventDefault();
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('searchFilter').addEventListener('input', (e) => {
+                currentFilters.search = e.target.value;
+                renderReports();
+            });
+            
+            document.getElementById('riskFilter').addEventListener('change', (e) => {
+                currentFilters.risk = e.target.value;
+                renderReports();
+            });
+            
+            document.getElementById('sortBy').addEventListener('change', (e) => {
+                currentFilters.sort = e.target.value;
+                renderReports();
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('reportModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuth();
+            await loadScans();
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>
