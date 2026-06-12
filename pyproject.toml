@@ -1,2 +1,2 @@
 [tool.vercel]
-entrypoint = "update_front:app"
+entrypoint = "main:app"
