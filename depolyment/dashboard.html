@@ -63,6 +63,7 @@
             text-align: center;
             border-left: 5px solid #6366F1;
             transition: transform 0.3s ease;
+            cursor: pointer;
         }
         
         .stat-card:hover {
@@ -121,6 +122,10 @@
             background: linear-gradient(135deg, #EF4444, #F59E0B);
         }
         
+        .btn-refresh {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        
         .nav {
             display: flex;
             gap: 15px;
@@ -131,6 +136,61 @@
         
         .logout-form {
             display: inline;
+        }
+        
+        .scan-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #6366F1;
+            transition: all 0.3s ease;
+        }
+        
+        .scan-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+            display: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .refreshing {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        .refresh-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 12px;
+            color: #10B981;
         }
     </style>
 </head>
@@ -147,6 +207,7 @@
                 <a href="/reports" class="btn">📊 Reports</a>
                 <a href="/history" class="btn">📋 History</a>
                 <a href="/analytics" class="btn">📈 Analytics</a>
+                <button onclick="manualRefresh()" class="btn btn-refresh">🔄 Refresh Data</button>
                 <form class="logout-form" onsubmit="logout(event)">
                     <button type="submit" class="btn btn-logout">🚪 Logout</button>
                 </form>
@@ -159,20 +220,20 @@
                 <span class="number" id="totalFiles">--</span>
                 <div class="description">Project files & assets</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="window.location.href='/history'">
                 <h3>Vulnerabilities Found</h3>
                 <span class="number" id="vulnerabilitiesFound">--</span>
-                <div class="description">Security issues detected</div>
+                <div class="description">Security issues detected (click to view)</div>
             </div>
             <div class="stat-card">
                 <h3>ML Models</h3>
                 <span class="number" id="mlModels">--</span>
                 <div class="description">AI-powered detection models</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="window.location.href='/history'">
                 <h3>Completed Scans</h3>
                 <span class="number" id="completedScans">--</span>
-                <div class="description">Security assessments performed</div>
+                <div class="description">Security assessments performed (click to view)</div>
             </div>
         </div>
         
@@ -185,14 +246,17 @@
         </div>
         
         <div class="scan-section">
-            <h2>📊 Recent Activity</h2>
+            <h2>📊 Recent Activity <span id="refreshIndicator" class="refresh-indicator"></span></h2>
             <div id="recentScans">
-                <p>No recent scans found. Start your first scan to see results here.</p>
+                <div class="loading">Loading recent scans...</div>
             </div>
         </div>
     </div>
 
     <script>
+        let refreshInterval;
+        let lastRefreshTime = new Date();
+        
         // Check authentication status
         async function checkAuth() {
             try {
@@ -201,7 +265,9 @@
                 
                 if (auth.authenticated) {
                     document.getElementById('username').textContent = auth.user.username;
+                    console.log('✅ User authenticated:', auth.user.username);
                 } else {
+                    console.log('❌ User not authenticated, redirecting to login');
                     window.location.href = '/login';
                 }
             } catch (error) {
@@ -213,66 +279,145 @@
         // Load dashboard stats
         async function loadStats() {
             try {
+                console.log('📊 Loading dashboard stats...');
                 const response = await fetch('/api/stats');
                 const stats = await response.json();
                 
-                document.getElementById('totalFiles').textContent = stats.total_files;
-                document.getElementById('vulnerabilitiesFound').textContent = stats.vulnerabilities_found;
-                document.getElementById('mlModels').textContent = stats.ml_models;
-                document.getElementById('completedScans').textContent = stats.completed_scans;
+                console.log('Stats received:', stats);
+                
+                document.getElementById('totalFiles').textContent = stats.total_files || 0;
+                document.getElementById('vulnerabilitiesFound').textContent = stats.vulnerabilities_found || 0;
+                document.getElementById('mlModels').textContent = stats.ml_models || 0;
+                document.getElementById('completedScans').textContent = stats.completed_scans || 0;
+                
+                // Update refresh indicator
+                const now = new Date();
+                document.getElementById('refreshIndicator').innerHTML = `🔄 Updated ${now.toLocaleTimeString()}`;
+                
             } catch (error) {
                 console.error('Error loading stats:', error);
-                // Set default values if API fails
-                document.getElementById('totalFiles').textContent = '552';
-                document.getElementById('vulnerabilitiesFound').textContent = '57';
-                document.getElementById('mlModels').textContent = '8';
-                document.getElementById('completedScans').textContent = '21';
+                document.getElementById('vulnerabilitiesFound').textContent = 'Error';
+                document.getElementById('completedScans').textContent = 'Error';
             }
         }
         
         // Load recent scans
         async function loadRecentScans() {
             try {
+                const recentScansDiv = document.getElementById('recentScans');
+                recentScansDiv.innerHTML = '<div class="loading">🔄 Loading recent scans...</div>';
+                
+                console.log('📋 Loading recent scans from /api/scans...');
                 const response = await fetch('/api/scans');
                 const data = await response.json();
                 
+                console.log('Scans data received:', data);
+                console.log('Number of scans:', data.scans ? data.scans.length : 0);
+                
                 if (data.scans && data.scans.length > 0) {
-                    const scansHtml = data.scans.map(scan => `
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #6366F1;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <strong>${scan.target_url}</strong>
-                                    <div style="color: #6c757d; font-size: 0.9em;">
-                                        ${scan.scan_type} • ${new Date(scan.start_time).toLocaleDateString()}
+                    console.log('First scan sample:', data.scans[0]);
+                    
+                    const scansHtml = data.scans.slice(0, 5).map(scan => {
+                        // Calculate risk class
+                        let riskClass = '';
+                        let riskColor = '';
+                        if (scan.risk_score >= 80) {
+                            riskColor = '#EF4444';
+                        } else if (scan.risk_score >= 60) {
+                            riskColor = '#F59E0B';
+                        } else if (scan.risk_score >= 30) {
+                            riskColor = '#3B82F6';
+                        } else {
+                            riskColor = '#10B981';
+                        }
+                        
+                        return `
+                            <div class="scan-item">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                                    <div style="flex: 1;">
+                                        <strong style="font-size: 1.1em;">${scan.target_url || 'N/A'}</strong>
+                                        <div style="color: #6c757d; font-size: 0.85em; margin-top: 5px;">
+                                            📅 ${scan.start_time ? new Date(scan.start_time).toLocaleString() : 'Unknown'} | 
+                                            🔍 ${scan.scan_type || 'Unknown'} | 
+                                            📊 ${scan.total_vulnerabilities || 0} vulnerabilities
+                                        </div>
+                                        <div style="margin-top: 5px;">
+                                            <span style="font-size: 0.8em;">🔴 Critical: ${scan.critical_count || 0}</span>
+                                            <span style="margin-left: 10px; font-size: 0.8em;">🟠 High: ${scan.high_count || 0}</span>
+                                            <span style="margin-left: 10px; font-size: 0.8em;">🔵 Medium: ${scan.medium_count || 0}</span>
+                                            <span style="margin-left: 10px; font-size: 0.8em;">🟢 Low: ${scan.low_count || 0}</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <span style="background: ${scan.risk_score > 70 ? '#EF4444' : scan.risk_score > 30 ? '#F59E0B' : '#10B981'}; 
-                                          color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em;">
-                                        Risk: ${scan.risk_score}%
-                                    </span>
-                                    <div style="font-size: 0.9em; margin-top: 5px;">
-                                        Vulns: ${scan.total_vulnerabilities}
+                                    <div style="text-align: right; margin-top: 10px;">
+                                        <span style="background: ${riskColor}; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; display: inline-block;">
+                                            Risk: ${scan.risk_score || 0}%
+                                        </span>
+                                        <div style="margin-top: 8px;">
+                                            <button onclick="viewScanReport('${scan.scan_id}')" style="background: #6366F1; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; margin-right: 5px;">📄 View Report</button>
+                                            <button onclick="downloadReport('${scan.scan_id}', 'pdf')" style="background: #EF4444; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer;">📑 PDF</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                     
-                    document.getElementById('recentScans').innerHTML = scansHtml;
+                    recentScansDiv.innerHTML = scansHtml;
+                } else {
+                    console.log('No scans found in database');
+                    recentScansDiv.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #6c757d;">
+                            📭 No scans found. 
+                            <a href="/scanner" style="color: #6366F1; text-decoration: none;">Start your first scan here!</a>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Error loading recent scans:', error);
+                document.getElementById('recentScans').innerHTML = `
+                    <div class="error-message">
+                        ❌ Error loading scans. Please check if the server is running properly.
+                        <br><small>Error: ${error.message}</small>
+                    </div>
+                `;
             }
+        }
+        
+        // View scan report
+        function viewScanReport(scanId) {
+            window.open(`/api/scan/${scanId}/report`, '_blank');
+        }
+        
+        // Download report
+        async function downloadReport(scanId, format) {
+            try {
+                window.location.href = `/api/scan/${scanId}/download/${format}`;
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Failed to download report');
+            }
+        }
+        
+        // Manual refresh
+        async function manualRefresh() {
+            console.log('🔄 Manual refresh triggered');
+            const refreshBtn = event.target;
+            const originalText = refreshBtn.textContent;
+            refreshBtn.textContent = '🔄 Refreshing...';
+            refreshBtn.disabled = true;
+            
+            await loadStats();
+            await loadRecentScans();
+            
+            refreshBtn.textContent = originalText;
+            refreshBtn.disabled = false;
         }
         
         // Logout function
         async function logout(event) {
             event.preventDefault();
             try {
-                const response = await fetch('/api/auth/logout', {
-                    method: 'POST'
-                });
+                await fetch('/api/auth/logout', { method: 'POST' });
                 window.location.href = '/login';
             } catch (error) {
                 console.error('Logout failed:', error);
@@ -280,11 +425,23 @@
             }
         }
         
+        // Auto-refresh every 10 seconds
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => {
+                console.log('🔄 Auto-refreshing dashboard...');
+                loadStats();
+                loadRecentScans();
+            }, 10000); // Refresh every 10 seconds
+        }
+        
         // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            loadStats();
-            loadRecentScans();
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Dashboard initializing...');
+            await checkAuth();
+            await loadStats();
+            await loadRecentScans();
+            startAutoRefresh();
         });
     </script>
 </body>
