@@ -1,48 +1,595 @@
-<h2>Scan History</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro - Scan History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-logout {
+            background: linear-gradient(135deg, #EF4444, #F59E0B);
+        }
+        
+        .btn-refresh {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        
+        .history-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stats-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-badge {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border-left: 4px solid #6366F1;
+        }
+        
+        .stat-badge strong {
+            color: #6366F1;
+            font-size: 1.2em;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-input, .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .history-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .history-table th {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .history-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+        }
+        
+        .history-table tr:hover {
+            background: #f8f9fa;
+            transition: background 0.3s ease;
+        }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .risk-critical { background: #EF4444; }
+        .risk-high { background: #F59E0B; }
+        .risk-medium { background: #3B82F6; }
+        .risk-low { background: #10B981; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-completed { background: #10B981; color: white; }
+        .status-running { background: #F59E0B; color: white; }
+        .status-error { background: #EF4444; color: white; }
+        .status-stopped { background: #6B7280; color: white; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .view-btn { background: #6366F1; color: white; }
+        .pdf-btn { background: #EF4444; color: white; }
+        .csv-btn { background: #10B981; color: white; }
+        .json-btn { background: #F59E0B; color: white; }
+        .html-btn { background: #8B5CF6; color: white; }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 25px;
+        }
+        
+        .auto-refresh label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .refreshing {
+            animation: pulse 1s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .history-table th, .history-table td {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+        
+        .logout-form {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Scan History</h1>
+            <p>Complete history of all security scans performed</p>
+            <div class="nav">
+                <a href="/dashboard" class="btn">📊 Dashboard</a>
+                <a href="/scanner" class="btn">🔍 New Scan</a>
+                <a href="/reports" class="btn">📄 Reports</a>
+                <a href="/analytics" class="btn">📈 Analytics</a>
+                <button onclick="refreshHistory()" class="btn btn-refresh">🔄 Refresh</button>
+                <form class="logout-form" onsubmit="logout(event)">
+                    <button type="submit" class="btn btn-logout">🚪 Logout</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="history-section">
+            <div class="stats-bar">
+                <div class="stats-info">
+                    <div class="stat-badge">
+                        📊 Total Scans: <strong id="totalScans">0</strong>
+                    </div>
+                    <div class="stat-badge">
+                        🚨 Total Vulnerabilities: <strong id="totalVulns">0</strong>
+                    </div>
+                    <div class="stat-badge">
+                        ⚠️ Average Risk: <strong id="avgRisk">0</strong>%
+                    </div>
+                </div>
+                <div class="auto-refresh">
+                    <label>
+                        <input type="checkbox" id="autoRefresh" checked> 
+                        🔄 Auto-refresh (2s)
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="searchFilter" placeholder="🔍 Search by URL or Scan ID..." class="filter-input">
+                <select id="riskFilter" class="filter-select">
+                    <option value="all">All Risk Levels</option>
+                    <option value="critical">Critical (80-100%)</option>
+                    <option value="high">High (60-79%)</option>
+                    <option value="medium">Medium (30-59%)</option>
+                    <option value="low">Low (0-29%)</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="running">Running</option>
+                    <option value="error">Error</option>
+                    <option value="stopped">Stopped</option>
+                </select>
+            </div>
+            
+            <div class="history-table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Scan ID</th>
+                            <th>Target URL</th>
+                            <th>Risk Score</th>
+                            <th>Vulnerabilities</th>
+                            <th>Status</th>
+                            <th>Scan Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable">
+                        <tr>
+                            <td colspan="7" class="loading">Loading scan history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-<table border="1">
-<tr>
-<th>Scan ID</th>
-<th>Target</th>
-<th>Risk</th>
-<th>Vulnerabilities</th>
-<th>Status</th>
-<th>Time</th>
-</tr>
-
-<tbody id="historyTable"></tbody>
-
-</table>
-
-<script>
-
-async function loadHistory(){
-
-let res = await fetch('/api/history/realtime')
-let data = await res.json()
-
-let html=""
-
-data.forEach(scan=>{
-
-html+=`
-<tr>
-<td>${scan.scan_id}</td>
-<td>${scan.target}</td>
-<td>${scan.risk}%</td>
-<td>${scan.vulnerabilities}</td>
-<td>${scan.status}</td>
-<td>${scan.time}</td>
-</tr>
-`
-})
-
-document.getElementById("historyTable").innerHTML=html
-
-}
-
-setInterval(loadHistory,2000)
-
-loadHistory()
-
-</script>
+    <script>
+        let refreshInterval = null;
+        let allScans = [];
+        
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const auth = await response.json();
+                
+                if (!auth.authenticated) {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Load scan history from API
+        async function loadHistory() {
+            try {
+                // Add refreshing animation
+                const tableBody = document.getElementById('historyTable');
+                tableBody.classList.add('refreshing');
+                
+                // Fetch scans from your existing API endpoint
+                const response = await fetch('/api/scans');
+                const data = await response.json();
+                
+                if (data.scans && Array.isArray(data.scans)) {
+                    allScans = data.scans;
+                    renderFilteredScans();
+                    updateStatistics();
+                } else {
+                    document.getElementById('historyTable').innerHTML = '<tr><td colspan="7" class="no-data">No scan history available</td></tr>';
+                }
+                
+                setTimeout(() => {
+                    tableBody.classList.remove('refreshing');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error loading history:', error);
+                document.getElementById('historyTable').innerHTML = '<tr><td colspan="7" class="no-data">Error loading scan history. Please try again.</td></tr>';
+            }
+        }
+        
+        // Render filtered scans based on search and filters
+        function renderFilteredScans() {
+            const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+            const riskFilter = document.getElementById('riskFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            const filteredScans = allScans.filter(scan => {
+                // Search filter
+                const matchesSearch = scan.target_url.toLowerCase().includes(searchTerm) || 
+                                    scan.scan_id.toLowerCase().includes(searchTerm);
+                
+                // Risk filter
+                let matchesRisk = true;
+                if (riskFilter !== 'all') {
+                    const riskScore = scan.risk_score || 0;
+                    if (riskFilter === 'critical') matchesRisk = riskScore >= 80;
+                    else if (riskFilter === 'high') matchesRisk = riskScore >= 60 && riskScore < 80;
+                    else if (riskFilter === 'medium') matchesRisk = riskScore >= 30 && riskScore < 60;
+                    else if (riskFilter === 'low') matchesRisk = riskScore < 30;
+                }
+                
+                // Status filter
+                const matchesStatus = statusFilter === 'all' || scan.status === statusFilter;
+                
+                return matchesSearch && matchesRisk && matchesStatus;
+            });
+            
+            if (filteredScans.length === 0) {
+                document.getElementById('historyTable').innerHTML = '<tr><td colspan="7" class="no-data">No scans match your filters</td></tr>';
+                return;
+            }
+            
+            // Generate table rows
+            const html = filteredScans.map(scan => {
+                // Risk badge class
+                let riskClass = 'risk-low';
+                const riskScore = scan.risk_score || 0;
+                if (riskScore >= 80) riskClass = 'risk-critical';
+                else if (riskScore >= 60) riskClass = 'risk-high';
+                else if (riskScore >= 30) riskClass = 'risk-medium';
+                
+                // Status badge class
+                let statusClass = 'status-completed';
+                if (scan.status === 'running') statusClass = 'status-running';
+                else if (scan.status === 'error') statusClass = 'status-error';
+                else if (scan.status === 'stopped') statusClass = 'status-stopped';
+                
+                // Format date
+                const scanDate = new Date(scan.start_time);
+                const formattedDate = scanDate.toLocaleString();
+                
+                // Calculate total vulnerabilities
+                const totalVulns = scan.total_vulnerabilities || 0;
+                const criticalCount = scan.critical_count || 0;
+                const highCount = scan.high_count || 0;
+                const mediumCount = scan.medium_count || 0;
+                const lowCount = scan.low_count || 0;
+                
+                return `
+                    <tr>
+                        <td style="font-family: monospace; font-size: 12px;">${scan.scan_id}</td>
+                        <td>
+                            <strong>${scan.target_url}</strong>
+                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px;">${scan.scan_type} scan</div>
+                        </td>
+                        <td>
+                            <span class="risk-badge ${riskClass}">${riskScore}%</span>
+                        </td>
+                        <td>
+                            <div style="font-size: 13px;">
+                                ${totalVulns > 0 ? `
+                                    <span style="color: #EF4444;">🔴 ${criticalCount}</span>
+                                    <span style="color: #F59E0B;">🟠 ${highCount}</span>
+                                    <span style="color: #3B82F6;">🔵 ${mediumCount}</span>
+                                    <span style="color: #10B981;">🟢 ${lowCount}</span>
+                                ` : '✅ No vulnerabilities'}
+                            </div>
+                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px;">Total: ${totalVulns}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${scan.status}</span>
+                        </td>
+                        <td style="font-size: 12px;">${formattedDate}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn view-btn" onclick="viewReport('${scan.scan_id}')">📄 View</button>
+                                <button class="action-btn pdf-btn" onclick="downloadReport('${scan.scan_id}', 'pdf')">📑 PDF</button>
+                                <button class="action-btn csv-btn" onclick="downloadReport('${scan.scan_id}', 'csv')">📊 CSV</button>
+                                <button class="action-btn json-btn" onclick="downloadReport('${scan.scan_id}', 'json')">📋 JSON</button>
+                                <button class="action-btn html-btn" onclick="downloadReport('${scan.scan_id}', 'html')">🌐 HTML</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('historyTable').innerHTML = html;
+        }
+        
+        // Update statistics
+        function updateStatistics() {
+            const totalScans = allScans.length;
+            const totalVulns = allScans.reduce((sum, scan) => sum + (scan.total_vulnerabilities || 0), 0);
+            const avgRisk = allScans.reduce((sum, scan) => sum + (scan.risk_score || 0), 0) / (totalScans || 1);
+            
+            document.getElementById('totalScans').textContent = totalScans;
+            document.getElementById('totalVulns').textContent = totalVulns;
+            document.getElementById('avgRisk').textContent = Math.round(avgRisk);
+        }
+        
+        // View report
+        function viewReport(scanId) {
+            window.open(`/api/scan/${scanId}/report`, '_blank');
+        }
+        
+        // Download report
+        async function downloadReport(scanId, format) {
+            try {
+                window.location.href = `/api/scan/${scanId}/download/${format}`;
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Failed to download report. Please try again.');
+            }
+        }
+        
+        // Refresh history manually
+        function refreshHistory() {
+            loadHistory();
+        }
+        
+        // Setup auto-refresh
+        function setupAutoRefresh() {
+            const autoRefreshCheckbox = document.getElementById('autoRefresh');
+            
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+            
+            if (autoRefreshCheckbox.checked) {
+                refreshInterval = setInterval(loadHistory, 2000);
+            }
+            
+            autoRefreshCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    refreshInterval = setInterval(loadHistory, 2000);
+                } else {
+                    if (refreshInterval) {
+                        clearInterval(refreshInterval);
+                        refreshInterval = null;
+                    }
+                }
+            });
+        }
+        
+        // Logout function
+        async function logout(event) {
+            event.preventDefault();
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Add event listeners for filters
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadHistory();
+            setupAutoRefresh();
+            
+            document.getElementById('searchFilter').addEventListener('input', renderFilteredScans);
+            document.getElementById('riskFilter').addEventListener('change', renderFilteredScans);
+            document.getElementById('statusFilter').addEventListener('change', renderFilteredScans);
+        });
+    </script>
+</body>
+</html>
