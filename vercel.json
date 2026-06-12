@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "update_front.py": {
+      "runtime": "python@3.11"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/update_front.py"
+    }
+  ]
+}
