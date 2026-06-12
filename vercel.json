@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/update_front.py"
+      "destination": "/main.py"
     }
   ]
 }
