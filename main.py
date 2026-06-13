@@ -75,7 +75,6 @@ def init_db():
         conn = sqlite3.connect('webscanpro.db')
         c = conn.cursor()
         
-        # Create scans table
         c.execute('''CREATE TABLE IF NOT EXISTS scans
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       scan_id TEXT UNIQUE,
@@ -93,7 +92,6 @@ def init_db():
                       user_id TEXT,
                       report_path TEXT)''')
         
-        # Create vulnerabilities table
         c.execute('''CREATE TABLE IF NOT EXISTS vulnerabilities
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       scan_id TEXT,
@@ -107,7 +105,6 @@ def init_db():
                       cvss REAL,
                       FOREIGN KEY (scan_id) REFERENCES scans (scan_id))''')
         
-        # Create users table
         c.execute('''CREATE TABLE IF NOT EXISTS users
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       username TEXT UNIQUE,
@@ -115,7 +112,6 @@ def init_db():
                       email TEXT,
                       created_at TEXT)''')
         
-        # Create reports table
         c.execute('''CREATE TABLE IF NOT EXISTS reports
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                       scan_id TEXT UNIQUE,
@@ -136,14 +132,12 @@ init_db()
 class ReportGenerator:
     @staticmethod
     def generate_pdf_report(scan_data, vulnerabilities):
-        """Generate PDF report"""
         try:
             buffer = io.BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=letter)
             styles = getSampleStyleSheet()
             story = []
             
-            # Title
             title_style = ParagraphStyle(
                 'CustomTitle',
                 parent=styles['Heading1'],
@@ -153,8 +147,6 @@ class ReportGenerator:
                 spaceAfter=30
             )
             story.append(Paragraph("WebScanPro Security Assessment Report", title_style))
-            
-            # Scan Information
             story.append(Paragraph("Scan Information", styles['Heading2']))
             scan_info = [
                 ["Target URL:", scan_data.get('target_url', 'N/A')],
@@ -177,8 +169,6 @@ class ReportGenerator:
             ]))
             story.append(info_table)
             story.append(Spacer(1, 20))
-            
-            # Vulnerabilities
             story.append(Paragraph("Detected Vulnerabilities", styles['Heading2']))
             
             if vulnerabilities:
@@ -216,7 +206,6 @@ class ReportGenerator:
     
     @staticmethod
     def generate_csv_report(vulnerabilities):
-        """Generate CSV report"""
         try:
             output = io.StringIO()
             writer = csv.writer(output)
@@ -242,7 +231,6 @@ class ReportGenerator:
     
     @staticmethod
     def generate_json_report(scan_data, vulnerabilities):
-        """Generate JSON report"""
         try:
             report = {
                 'scan_info': {
@@ -270,8 +258,30 @@ class ReportGenerator:
     
     @staticmethod
     def generate_html_report(scan_data, vulnerabilities):
-        """Generate HTML report"""
+        """Generate HTML report - FIXED: no nested f-strings"""
         try:
+            # Build vulnerabilities HTML separately
+            vulns_html = ""
+            if vulnerabilities:
+                for vuln in vulnerabilities:
+                    vulns_html += f"""
+                    <tr>
+                        <td>{vuln.get('type', 'N/A')}</td>
+                        <td class="severity-{vuln.get('severity', 'low').lower()}">{vuln.get('severity', 'N/A')}</td>
+                        <td>{vuln.get('parameter', 'N/A')}</td>
+                        <td>{vuln.get('description', 'N/A')}</td>
+                    </tr>"""
+                
+                vulns_html = f"""
+                <table class="vulnerability-table">
+                    <thead>
+                        <tr><th>Type</th><th>Severity</th><th>Parameter</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>{vulns_html}</tbody>
+                </table>"""
+            else:
+                vulns_html = "<p>No vulnerabilities detected.</p>"
+            
             html_template = f"""
             <!DOCTYPE html>
             <html>
@@ -359,28 +369,7 @@ class ReportGenerator:
                     </div>
                     
                     <h2>Detected Vulnerabilities</h2>
-                    {'<p>No vulnerabilities detected.</p>' if len(vulnerabilities) == 0 else f'''
-                    <table class="vulnerability-table">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Severity</th>
-                                <th>Parameter</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {''.join([f'''
-                            <tr>
-                                <td>{vuln.get('type', 'N/A')}</td>
-                                <td class="severity-{vuln.get('severity', 'low').lower()}">{vuln.get('severity', 'N/A')}</td>
-                                <td>{vuln.get('parameter', 'N/A')}</td>
-                                <td>{vuln.get('description', 'N/A')}</td>
-                            </tr>
-                            ''' for vuln in vulnerabilities])}
-                        </tbody>
-                    </table>
-                    '''}
+                    {vulns_html}
                 </div>
             </body>
             </html>
@@ -413,8 +402,6 @@ class ScanManager:
             }
             
             self.active_scans[scan_id] = scan_data
-            
-            # Start scan in background thread
             thread = threading.Thread(target=self._run_scan, args=(scan_id, target_url, scan_type))
             thread.daemon = True
             thread.start()
@@ -425,12 +412,10 @@ class ScanManager:
             return None
     
     def _run_scan(self, scan_id, target_url, scan_type):
-        """Run the actual vulnerability scan"""
         try:
             scan_data = self.active_scans[scan_id]
             domain = urlparse(target_url).netloc.lower()
             
-            # Simulate scanning process
             phases = [
                 ("🚀 Initializing security scan...", 5),
                 ("🔍 Analyzing target structure...", 15),
@@ -446,19 +431,12 @@ class ScanManager:
                 self._update_scan(scan_id, progress=progress, log=phase_msg)
                 time.sleep(1.5)
                 
-                # Add vulnerabilities based on domain
                 if progress in [30, 50, 70, 85] and domain in VULNERABILITY_DATABASE:
                     self._add_domain_vulnerabilities(scan_id, domain)
             
-            # Calculate risk score
             scan_data['risk_score'] = self._calculate_risk_score(scan_data['results'])
-            
-            # Generate charts
             self._generate_charts(scan_id)
-            
-            # Save to database
             self._save_scan_to_db(scan_id)
-            
             self._update_scan(scan_id, status='completed')
             print(f"✅ Scan {scan_id} completed with {len(scan_data['results'])} vulnerabilities")
             
@@ -467,7 +445,6 @@ class ScanManager:
             self._update_scan(scan_id, status='error', log=f"❌ Scan error: {str(e)}")
     
     def _add_domain_vulnerabilities(self, scan_id, domain):
-        """Add vulnerabilities based on domain"""
         try:
             scan_data = self.active_scans[scan_id]
             domain_data = VULNERABILITY_DATABASE.get(domain, {})
@@ -484,7 +461,6 @@ class ScanManager:
             print(f"Error adding vulnerabilities: {e}")
     
     def _generate_charts(self, scan_id):
-        """Generate chart data"""
         try:
             scan_data = self.active_scans[scan_id]
             scan_data['charts'] = {
@@ -495,7 +471,6 @@ class ScanManager:
             print(f"Error generating charts: {e}")
     
     def _create_severity_chart(self, results):
-        """Create severity chart"""
         try:
             severities = ['Critical', 'High', 'Medium', 'Low']
             counts = [
@@ -509,15 +484,7 @@ class ScanManager:
             colors = [PROFESSIONAL_COLORS['danger'], PROFESSIONAL_COLORS['warning'], 
                      PROFESSIONAL_COLORS['primary'], PROFESSIONAL_COLORS['success']]
             
-            wedges, texts, autotexts = ax.pie(
-                counts, 
-                labels=severities, 
-                colors=colors,
-                autopct='%1.1f%%',
-                startangle=90
-            )
-            
-            plt.setp(autotexts, size=10, weight="bold", color='white')
+            ax.pie(counts, labels=severities, colors=colors, autopct='%1.1f%%', startangle=90)
             ax.set_title('Vulnerability Severity Distribution', pad=20, size=12, weight='bold')
             
             img_buffer = io.BytesIO()
@@ -532,7 +499,6 @@ class ScanManager:
             return None
     
     def _create_timeline_chart(self):
-        """Create timeline chart"""
         try:
             times = ['Start', 'Recon', 'SQLi Scan', 'XSS Scan', 'Auth Test', 'Analysis', 'Complete']
             progress = [0, 15, 40, 65, 85, 95, 100]
@@ -557,7 +523,6 @@ class ScanManager:
             return None
     
     def _update_scan(self, scan_id, progress=None, status=None, log=None):
-        """Update scan progress and logs"""
         try:
             if scan_id in self.active_scans:
                 if progress is not None:
@@ -573,7 +538,6 @@ class ScanManager:
             print(f"Error updating scan: {e}")
     
     def _save_scan_to_db(self, scan_id):
-        """Save scan results to database"""
         try:
             scan_data = self.active_scans[scan_id]
             
@@ -588,12 +552,6 @@ class ScanManager:
             low = len([v for v in results if v['severity'] == 'Low'])
             risk_score = scan_data.get('risk_score', 0)
             
-            print(f"💾 Saving scan to DB: {scan_id}")
-            print(f"   - Vulnerabilities: {total_vulns} (C:{critical}, H:{high}, M:{medium}, L:{low})")
-            print(f"   - Risk Score: {risk_score}")
-            print(f"   - User ID: {scan_data['user_id']}")
-            
-            # Insert scan record
             c.execute('''INSERT INTO scans 
                         (scan_id, target_url, scan_type, status, risk_score, 
                          total_vulnerabilities, critical_count, high_count, medium_count, low_count,
@@ -603,7 +561,6 @@ class ScanManager:
                       risk_score, total_vulns, critical, high, medium, low,
                       scan_data['start_time'], datetime.now().isoformat(), scan_data['user_id']))
             
-            # Insert vulnerabilities
             for vuln in results:
                 c.execute('''INSERT INTO vulnerabilities 
                             (scan_id, type, severity, parameter, payload, description, confidence, cwe, cvss)
@@ -618,11 +575,8 @@ class ScanManager:
             
         except Exception as e:
             print(f"❌ Database save error: {e}")
-            import traceback
-            traceback.print_exc()
     
     def _calculate_risk_score(self, vulnerabilities):
-        """Calculate overall risk score"""
         try:
             if not vulnerabilities:
                 return 0
@@ -636,11 +590,9 @@ class ScanManager:
             return 50
     
     def get_scan_status(self, scan_id):
-        """Get current scan status"""
         if scan_id in self.active_scans:
             return self.active_scans[scan_id]
         
-        # Try to load from database
         try:
             conn = sqlite3.connect('webscanpro.db')
             c = conn.cursor()
@@ -679,26 +631,16 @@ class ScanManager:
         return {'status': 'not_found'}
     
     def get_user_scans(self, user_id, limit=50):
-        """Get user's scan history"""
         try:
             conn = sqlite3.connect('webscanpro.db')
             c = conn.cursor()
             
-            print(f"🔍 Querying scans for user_id: {user_id}")
-            
-            # First, let's see all scans in the database
-            c.execute('SELECT COUNT(*) FROM scans')
-            total_all = c.fetchone()[0]
-            print(f"   Total scans in database: {total_all}")
-            
-            # Now get user-specific scans
             c.execute('''SELECT * FROM scans 
                         WHERE user_id = ? OR user_id IS NULL 
                         ORDER BY start_time DESC LIMIT ?''', 
                      (str(user_id), limit))
             
             rows = c.fetchall()
-            print(f"   Found {len(rows)} scans for user {user_id}")
             
             scans = []
             for row in rows:
@@ -718,30 +660,24 @@ class ScanManager:
                     'end_time': row[12]
                 }
                 scans.append(scan_data)
-                print(f"   - Scan: {scan_data['scan_id']} - {scan_data['target_url']} - Risk: {scan_data['risk_score']}")
             
             conn.close()
             return scans
         except Exception as e:
             print(f"Error getting user scans: {e}")
-            import traceback
-            traceback.print_exc()
             return []
     
     def get_scan_details(self, scan_id):
-        """Get complete scan details including vulnerabilities"""
         try:
             conn = sqlite3.connect('webscanpro.db')
             c = conn.cursor()
             
-            # Get scan info
             c.execute('SELECT * FROM scans WHERE scan_id = ?', (scan_id,))
             scan = c.fetchone()
             
             if not scan:
                 return None
             
-            # Get vulnerabilities
             c.execute('SELECT * FROM vulnerabilities WHERE scan_id = ?', (scan_id,))
             vulns = c.fetchall()
             
@@ -779,10 +715,8 @@ class ScanManager:
             print(f"Error getting scan details: {e}")
             return None
 
-# Initialize scan manager
 scan_manager = ScanManager()
 
-# Authentication decorator
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -791,7 +725,6 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Flask Routes
 @app.route('/')
 def index():
     if 'user_id' in session:
@@ -835,10 +768,8 @@ def register_page():
         return api_register()
     return render_template('register.html')
 
-# API Routes
 @app.route('/api/auth/register', methods=['POST'])
 def api_register():
-    """User registration"""
     try:
         data = request.json
         username = data.get('username', '').strip()
@@ -851,12 +782,10 @@ def api_register():
         conn = sqlite3.connect('webscanpro.db')
         c = conn.cursor()
         
-        # Check if user exists
         c.execute('SELECT id FROM users WHERE username = ?', (username,))
         if c.fetchone():
             return jsonify({'error': 'Username already exists'}), 400
         
-        # Create new user
         password_hash = hashlib.sha256(password.encode()).hexdigest()
         c.execute('INSERT INTO users (username, password_hash, email, created_at) VALUES (?, ?, ?, ?)',
                  (username, password_hash, email, datetime.now().isoformat()))
@@ -871,7 +800,6 @@ def api_register():
 
 @app.route('/api/auth/login', methods=['POST'])
 def api_login():
-    """User login"""
     try:
         data = request.json
         username = data.get('username', '').strip()
@@ -883,7 +811,6 @@ def api_login():
         conn = sqlite3.connect('webscanpro.db')
         c = conn.cursor()
         
-        # Verify user credentials
         password_hash = hashlib.sha256(password.encode()).hexdigest()
         c.execute('SELECT id, username FROM users WHERE username = ? AND password_hash = ?',
                  (username, password_hash))
@@ -909,7 +836,6 @@ def api_login():
 @app.route('/api/auth/logout', methods=['POST'])
 @login_required
 def api_logout():
-    """User logout"""
     try:
         session.clear()
         return jsonify({'message': 'Logout successful'})
@@ -918,7 +844,6 @@ def api_logout():
 
 @app.route('/api/auth/status')
 def api_auth_status():
-    """Check authentication status"""
     try:
         if 'user_id' in session:
             return jsonify({
@@ -936,7 +861,6 @@ def api_auth_status():
 @app.route('/api/scan', methods=['POST'])
 @login_required
 def api_start_scan():
-    """Start a new vulnerability scan"""
     try:
         data = request.json
         target_url = data.get('target_url', '').strip()
@@ -945,7 +869,6 @@ def api_start_scan():
         if not target_url:
             return jsonify({'error': 'Target URL is required'}), 400
         
-        # Validate URL format
         if not target_url.startswith(('http://', 'https://')):
             target_url = 'http://' + target_url
         
@@ -966,7 +889,6 @@ def api_start_scan():
 @app.route('/api/scan/<scan_id>/status')
 @login_required
 def api_scan_status(scan_id):
-    """Get scan status"""
     try:
         status = scan_manager.get_scan_status(scan_id)
         return jsonify(status)
@@ -976,7 +898,6 @@ def api_scan_status(scan_id):
 @app.route('/api/scan/<scan_id>/stop', methods=['POST'])
 @login_required
 def api_stop_scan(scan_id):
-    """Stop a running scan"""
     try:
         scan_manager._update_scan(scan_id, status='stopped', log='🛑 Scan stopped by user')
         return jsonify({'status': 'stopped', 'message': 'Scan stopped successfully'})
@@ -986,26 +907,17 @@ def api_stop_scan(scan_id):
 @app.route('/api/scans')
 @login_required
 def api_get_scans():
-    """Get user's scan history"""
     try:
         user_id = session.get('user_id')
-        username = session.get('username')
-        print(f"📋 Fetching scans for user: {username} (ID: {user_id})")
-        
         scans = scan_manager.get_user_scans(user_id)
-        print(f"📋 Returning {len(scans)} scans to dashboard")
-        
         return jsonify({'scans': scans})
     except Exception as e:
         print(f"Error in /api/scans: {e}")
-        import traceback
-        traceback.print_exc()
         return jsonify({'scans': []})
 
 @app.route('/api/scan/<scan_id>/report')
 @login_required
 def api_get_scan_report(scan_id):
-    """Get detailed scan report"""
     try:
         scan_data = scan_manager.get_scan_status(scan_id)
         
@@ -1019,15 +931,12 @@ def api_get_scan_report(scan_id):
 @app.route('/api/scan/<scan_id>/download/<format>')
 @login_required
 def api_download_report(scan_id, format):
-    """Download scan report in different formats"""
     try:
-        # Get scan details
         scan_details = scan_manager.get_scan_details(scan_id)
         
         if not scan_details:
             return jsonify({'error': 'Scan not found'}), 404
         
-        # Generate report based on format
         if format.lower() == 'pdf':
             report_buffer = ReportGenerator.generate_pdf_report(scan_details, scan_details.get('vulnerabilities', []))
             if report_buffer:
@@ -1071,22 +980,14 @@ def api_download_report(scan_id, format):
 @app.route('/api/stats')
 @login_required
 def api_get_stats():
-    """Get dashboard statistics"""
     try:
         user_id = session.get('user_id')
-        username = session.get('username')
-        print(f"📊 Fetching stats for user: {username} (ID: {user_id})")
-        
         scans = scan_manager.get_user_scans(user_id)
         total_scans = len(scans)
         total_vulns = sum(scan.get('total_vulnerabilities', 0) for scan in scans)
         
-        print(f"📊 Stats - Total Scans: {total_scans}, Total Vulns: {total_vulns}")
-        
-        # Calculate average risk score
         avg_risk = sum(scan.get('risk_score', 0) for scan in scans) / max(total_scans, 1)
         
-        # Count files in project directory
         total_files = 0
         for root, dirs, files in os.walk('.'):
             if 'venv' not in root and '__pycache__' not in root and 'templates' not in root:
@@ -1102,8 +1003,6 @@ def api_get_stats():
         })
     except Exception as e:
         print(f"Error in /api/stats: {e}")
-        import traceback
-        traceback.print_exc()
         return jsonify({
             'total_files': 552,
             'vulnerabilities_found': 0,
@@ -1113,68 +1012,6 @@ def api_get_stats():
             'colors': PROFESSIONAL_COLORS
         })
 
-# Debug endpoints
-@app.route('/api/debug/scans')
-@login_required
-def debug_scans():
-    """Debug endpoint to check scans in database"""
-    try:
-        conn = sqlite3.connect('webscanpro.db')
-        c = conn.cursor()
-        
-        # Get all scans
-        c.execute('SELECT * FROM scans ORDER BY start_time DESC')
-        all_scans = c.fetchall()
-        
-        results = []
-        for scan in all_scans:
-            results.append({
-                'id': scan[0],
-                'scan_id': scan[1],
-                'target_url': scan[2],
-                'status': scan[4],
-                'risk_score': scan[5],
-                'total_vulns': scan[6],
-                'start_time': scan[11],
-                'user_id': scan[12]
-            })
-        
-        conn.close()
-        
-        return jsonify({
-            'total_scans': len(results),
-            'scans': results,
-            'current_user_id': session.get('user_id'),
-            'current_username': session.get('username')
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-@app.route('/api/debug/users')
-@login_required
-def debug_users():
-    """Debug endpoint to check users in database"""
-    try:
-        conn = sqlite3.connect('webscanpro.db')
-        c = conn.cursor()
-        
-        c.execute('SELECT id, username, created_at FROM users')
-        users = c.fetchall()
-        
-        results = [{'id': u[0], 'username': u[1], 'created_at': u[2]} for u in users]
-        
-        conn.close()
-        
-        return jsonify({
-            'total_users': len(results),
-            'users': results,
-            'current_user_id': session.get('user_id'),
-            'current_username': session.get('username')
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-# Error handlers
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Endpoint not found'}), 404
@@ -1188,7 +1025,7 @@ def create_templates():
     templates_dir = 'templates'
     os.makedirs(templates_dir, exist_ok=True)
     
-    # Dashboard template (FIXED - no f-string, regular string)
+    # Dashboard template - NOT an f-string (no 'f' prefix)
     dashboard_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1197,163 +1034,19 @@ def create_templates():
     <title>WebScanPro - Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #2B2D42;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #6366F1, #8B5CF6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .user-info {
-            margin-top: 15px;
-            color: #6c757d;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            text-align: center;
-            border-left: 5px solid #6366F1;
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-card h3 {
-            font-size: 1.1em;
-            color: #6c757d;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-        
-        .stat-card .number {
-            font-size: 3em;
-            font-weight: bold;
-            color: #6366F1;
-            margin-bottom: 10px;
-            display: block;
-        }
-        
-        .stat-card .description {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        .scan-section {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #6366F1, #8B5CF6);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            margin: 5px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        .btn-logout {
-            background: linear-gradient(135deg, #EF4444, #F59E0B);
-        }
-        
-        .btn-refresh {
-            background: linear-gradient(135deg, #10B981, #059669);
-        }
-        
-        .nav {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .logout-form {
-            display: inline;
-        }
-        
-        .scan-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            border-left: 4px solid #6366F1;
-            transition: all 0.3s ease;
-        }
-        
-        .scan-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #6c757d;
-        }
-        
-        .refresh-indicator {
-            font-size: 12px;
-            color: #10B981;
-            margin-left: 10px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; margin-bottom: 30px; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 15px; text-align: center; border-left: 5px solid #6366F1; cursor: pointer; }
+        .stat-card .number { font-size: 3em; font-weight: bold; color: #6366F1; display: block; }
+        .btn { background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: 600; text-decoration: none; display: inline-block; margin: 5px; }
+        .btn-logout { background: linear-gradient(135deg, #EF4444, #F59E0B); }
+        .nav { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+        .scan-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #6366F1; }
+        .loading { text-align: center; padding: 20px; color: #6c757d; }
+        .logout-form { display: inline; }
     </style>
 </head>
 <body>
@@ -1361,173 +1054,51 @@ def create_templates():
         <div class="header">
             <h1>🛡️ WebScanPro Security Dashboard</h1>
             <p>Professional Web Vulnerability Scanner & Security Analytics</p>
-            <div class="user-info" id="userInfo">
-                Welcome, <span id="username">User</span>!
-            </div>
+            <div class="user-info">Welcome, <span id="username">User</span>!</div>
             <div class="nav">
                 <a href="/scanner" class="btn">🔍 Scanner</a>
                 <a href="/reports" class="btn">📊 Reports</a>
                 <a href="/history" class="btn">📋 History</a>
                 <a href="/analytics" class="btn">📈 Analytics</a>
-                <button onclick="manualRefresh()" class="btn btn-refresh">🔄 Refresh</button>
-                <form class="logout-form" onsubmit="logout(event)">
-                    <button type="submit" class="btn btn-logout">🚪 Logout</button>
-                </form>
+                <button onclick="manualRefresh()" class="btn">🔄 Refresh</button>
+                <form class="logout-form" onsubmit="logout(event)"><button type="submit" class="btn btn-logout">🚪 Logout</button></form>
             </div>
         </div>
-        
         <div class="stats-grid" id="statsGrid">
-            <div class="stat-card" onclick="window.location.href='/history'">
-                <h3>Total Files</h3>
-                <span class="number" id="totalFiles">--</span>
-                <div class="description">Project files & assets</div>
-            </div>
-            <div class="stat-card" onclick="window.location.href='/history'">
-                <h3>Vulnerabilities Found</h3>
-                <span class="number" id="vulnerabilitiesFound">--</span>
-                <div class="description">Security issues detected</div>
-            </div>
-            <div class="stat-card">
-                <h3>ML Models</h3>
-                <span class="number" id="mlModels">--</span>
-                <div class="description">AI-powered detection models</div>
-            </div>
-            <div class="stat-card" onclick="window.location.href='/history'">
-                <h3>Completed Scans</h3>
-                <span class="number" id="completedScans">--</span>
-                <div class="description">Security assessments performed</div>
-            </div>
+            <div class="stat-card" onclick="window.location.href='/history'"><h3>Total Files</h3><span class="number" id="totalFiles">--</span></div>
+            <div class="stat-card" onclick="window.location.href='/history'"><h3>Vulnerabilities</h3><span class="number" id="vulnerabilitiesFound">--</span></div>
+            <div class="stat-card"><h3>ML Models</h3><span class="number" id="mlModels">--</span></div>
+            <div class="stat-card" onclick="window.location.href='/history'"><h3>Completed Scans</h3><span class="number" id="completedScans">--</span></div>
         </div>
-        
-        <div class="scan-section">
-            <h2>🚀 Quick Start</h2>
-            <p>Start a new security scan to analyze your web application for vulnerabilities.</p>
-            <div style="margin-top: 20px;">
-                <a href="/scanner" class="btn">Start New Scan</a>
-            </div>
-        </div>
-        
-        <div class="scan-section">
-            <h2>📊 Recent Activity <span id="refreshIndicator" class="refresh-indicator"></span></h2>
-            <div id="recentScans">
-                <div class="loading">Loading recent scans...</div>
-            </div>
-        </div>
+        <div class="scan-section"><h2>🚀 Quick Start</h2><p>Start a new security scan.</p><a href="/scanner" class="btn">Start New Scan</a></div>
+        <div class="scan-section"><h2>📊 Recent Activity</h2><div id="recentScans"><div class="loading">Loading...</div></div></div>
     </div>
-
     <script>
-        let refreshInterval;
-        
         async function checkAuth() {
-            try {
-                const response = await fetch('/api/auth/status');
-                const auth = await response.json();
-                
-                if (auth.authenticated) {
-                    document.getElementById('username').textContent = auth.user.username;
-                } else {
-                    window.location.href = '/login';
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                window.location.href = '/login';
-            }
+            const resp = await fetch('/api/auth/status');
+            const auth = await resp.json();
+            if (!auth.authenticated) window.location.href = '/login';
+            else document.getElementById('username').textContent = auth.user.username;
         }
-        
         async function loadStats() {
-            try {
-                const response = await fetch('/api/stats');
-                const stats = await response.json();
-                
-                document.getElementById('totalFiles').textContent = stats.total_files || 0;
-                document.getElementById('vulnerabilitiesFound').textContent = stats.vulnerabilities_found || 0;
-                document.getElementById('mlModels').textContent = stats.ml_models || 0;
-                document.getElementById('completedScans').textContent = stats.completed_scans || 0;
-                
-                const now = new Date();
-                document.getElementById('refreshIndicator').innerHTML = `🔄 Updated ${now.toLocaleTimeString()}`;
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
+            const resp = await fetch('/api/stats');
+            const stats = await resp.json();
+            document.getElementById('totalFiles').textContent = stats.total_files || 0;
+            document.getElementById('vulnerabilitiesFound').textContent = stats.vulnerabilities_found || 0;
+            document.getElementById('mlModels').textContent = stats.ml_models || 0;
+            document.getElementById('completedScans').textContent = stats.completed_scans || 0;
         }
-        
         async function loadRecentScans() {
-            try {
-                const recentScansDiv = document.getElementById('recentScans');
-                recentScansDiv.innerHTML = '<div class="loading">Loading recent scans...</div>';
-                
-                const response = await fetch('/api/scans');
-                const data = await response.json();
-                
-                if (data.scans && data.scans.length > 0) {
-                    const scansHtml = data.scans.slice(0, 5).map(scan => `
-                        <div class="scan-item">
-                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                                <div style="flex: 1;">
-                                    <strong style="font-size: 1.1em;">${scan.target_url}</strong>
-                                    <div style="color: #6c757d; font-size: 0.85em; margin-top: 5px;">
-                                        📅 ${new Date(scan.start_time).toLocaleString()} | 
-                                        🔍 ${scan.scan_type} | 
-                                        📊 ${scan.total_vulnerabilities || 0} vulnerabilities
-                                    </div>
-                                </div>
-                                <div style="text-align: right; margin-top: 10px;">
-                                    <span style="background: ${scan.risk_score > 70 ? '#EF4444' : scan.risk_score > 30 ? '#F59E0B' : '#10B981'}; 
-                                          color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold;">
-                                        Risk: ${scan.risk_score || 0}%
-                                    </span>
-                                    <div style="margin-top: 8px;">
-                                        <button onclick="viewScanReport('${scan.scan_id}')" style="background: #6366F1; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer;">View Report</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    recentScansDiv.innerHTML = scansHtml;
-                } else {
-                    recentScansDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #6c757d;">📭 No scans found. Start your first scan to see results here!</div>';
-                }
-            } catch (error) {
-                console.error('Error loading recent scans:', error);
-                document.getElementById('recentScans').innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;">❌ Error loading scans</div>';
-            }
+            const resp = await fetch('/api/scans');
+            const data = await resp.json();
+            const div = document.getElementById('recentScans');
+            if (data.scans && data.scans.length > 0) {
+                div.innerHTML = data.scans.slice(0,5).map(s => `<div class="scan-item"><strong>${s.target_url}</strong><br>Risk: ${s.risk_score || 0}% | Vulns: ${s.total_vulnerabilities || 0}<br><button onclick="window.open('/api/scan/${s.scan_id}/report')">View Report</button></div>`).join('');
+            } else div.innerHTML = '<div class="loading">No scans yet. Start your first scan!</div>';
         }
-        
-        function viewScanReport(scanId) {
-            window.open(`/api/scan/${scanId}/report`, '_blank');
-        }
-        
-        async function manualRefresh() {
-            await loadStats();
-            await loadRecentScans();
-        }
-        
-        async function logout(event) {
-            event.preventDefault();
-            try {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                window.location.href = '/login';
-            } catch (error) {
-                console.error('Logout failed:', error);
-                window.location.href = '/login';
-            }
-        }
-        
-        function startAutoRefresh() {
-            if (refreshInterval) clearInterval(refreshInterval);
-            refreshInterval = setInterval(() => {
-                loadRecentScans();
-                loadStats();
-            }, 10000);
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            loadStats();
-            loadRecentScans();
-            startAutoRefresh();
-        });
+        async function manualRefresh() { await loadStats(); await loadRecentScans(); }
+        async function logout(e) { e.preventDefault(); await fetch('/api/auth/logout',{method:'POST'}); window.location.href='/login'; }
+        document.addEventListener('DOMContentLoaded', () => { checkAuth(); loadStats(); loadRecentScans(); setInterval(() => { loadRecentScans(); loadStats(); }, 10000); });
     </script>
 </body>
 </html>"""
@@ -1535,7 +1106,6 @@ def create_templates():
     with open(os.path.join(templates_dir, 'dashboard.html'), 'w', encoding='utf-8') as f:
         f.write(dashboard_html)
     
-    # Create other basic templates
     basic_templates = ['index.html', 'login.html', 'register.html', 'scanner.html', 'reports.html', 'analytics.html', 'history.html']
     for template in basic_templates:
         template_path = os.path.join(templates_dir, template)
@@ -1543,56 +1113,24 @@ def create_templates():
             with open(template_path, 'w', encoding='utf-8') as f:
                 f.write(f"""<!DOCTYPE html>
 <html>
-<head>
-    <title>WebScanPro - {template.replace('.html', '').title()}</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }}
-        .container {{
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
-        }}
-        h1 {{ color: #6366F1; }}
-        .btn {{
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            background: #6366F1;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }}
-    </style>
+<head><title>WebScanPro - {template.replace('.html', '').title()}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {{ font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0; padding: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }}
+.container {{ background: white; padding: 40px; border-radius: 10px; text-align: center; }}
+h1 {{ color: #6366F1; }}
+.btn {{ display: inline-block; padding: 10px 20px; margin: 10px; background: #6366F1; color: white; text-decoration: none; border-radius: 5px; }}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>WebScanPro</h1>
-        <p>{template.replace('.html', '').title()} page</p>
-        <a href="/dashboard" class="btn">Go to Dashboard</a>
-    </div>
+<div class="container"><h1>WebScanPro</h1><p>{template.replace('.html', '').title()} page</p><a href="/dashboard" class="btn">Go to Dashboard</a></div>
 </body>
 </html>""")
 
 create_templates()
 
-# For production (Render, Gunicorn)
-# Gunicorn will use 'app' as the WSGI application
-
 if __name__ == '__main__':
-    # Development server only
     print("🚀 WebScanPro Starting in Development Mode...")
     print("📍 http://localhost:5000")
     app.run(debug=True, port=5000, host='0.0.0.0')
