@@ -1586,22 +1586,14 @@ def create_templates():
 </body>
 </html>""")
 
+reate_templates()
+
+# For production (Render, Gunicorn)
+# Gunicorn will use 'app' as the WSGI application
+# No need for if __name__ == '__main__' block
+
 if __name__ == '__main__':
-    # Create all templates
-    create_templates()
-    
-    print("🚀 WebScanPro Ultimate Starting...")
+    # Development server only
+    print("🚀 WebScanPro Starting in Development Mode...")
     print("📍 http://localhost:5000")
-    print("🎨 Professional UI Ready")
-    print("🔐 Authentication System Active")
-    print("📊 Scanning Engine Loaded")
-    print("📄 Report Generation Available (PDF, CSV, JSON, HTML)")
-    print("📋 History Tracking Active")
-    print("💫 Amazing Animations Enabled")
-    print("=" * 50)
-    print("\n💡 Debug endpoints available:")
-    print("   - http://localhost:5000/api/debug/scans")
-    print("   - http://localhost:5000/api/debug/users")
-    print("=" * 50)
-    
     app.run(debug=True, port=5000, host='0.0.0.0')
