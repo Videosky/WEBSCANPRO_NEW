@@ -9,5 +9,5 @@ services:
         value: 3.11.5
       - key: FLASK_ENV
         value: production
-      - key: FLASK_APP
-        value: main.py
+      - key: POETRY_VERSION
+        value: ""
