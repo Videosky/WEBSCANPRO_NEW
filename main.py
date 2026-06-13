@@ -1188,7 +1188,7 @@ def create_templates():
     templates_dir = 'templates'
     os.makedirs(templates_dir, exist_ok=True)
     
-    # Dashboard template
+    # Dashboard template (FIXED - no f-string, regular string)
     dashboard_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1586,11 +1586,10 @@ def create_templates():
 </body>
 </html>""")
 
-reate_templates()
+create_templates()
 
 # For production (Render, Gunicorn)
 # Gunicorn will use 'app' as the WSGI application
-# No need for if __name__ == '__main__' block
 
 if __name__ == '__main__':
     # Development server only
