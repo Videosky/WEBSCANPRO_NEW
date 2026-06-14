@@ -24,10 +24,16 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 import markdown
+import secrets
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'webscanpro_secret_key_2024'
+# Use environment variable for secret key in production
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_SECURE', 'False').lower() == 'true'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Professional color scheme
 PROFESSIONAL_COLORS = {
@@ -268,85 +274,85 @@ class ReportGenerator:
             print(f"JSON generation error: {e}")
             return None
     
-  @staticmethod
-def generate_html_report(scan_data, vulnerabilities):
-    """Generate HTML report"""
-    try:
-        # Build rows separately to avoid nested f-string issues
-        if len(vulnerabilities) == 0:
-            vuln_section = '<p>No vulnerabilities detected.</p>'
-        else:
-            rows = []
-            for vuln in vulnerabilities:
-                rows.append(
-                    '<tr>'
-                    f'<td>{vuln.get("type", "N/A")}</td>'
-                    f'<td class="severity-{vuln.get("severity", "low").lower()}">{vuln.get("severity", "N/A")}</td>'
-                    f'<td>{vuln.get("parameter", "N/A")}</td>'
-                    f'<td>{vuln.get("description", "N/A")}</td>'
-                    '</tr>'
-                )
-            vuln_section = f'''
-            <table class="vulnerability-table">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Severity</th>
-                        <th>Parameter</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {"".join(rows)}
-                </tbody>
-            </table>'''
+    @staticmethod
+    def generate_html_report(scan_data, vulnerabilities):
+        """Generate HTML report"""
+        try:
+            # Build rows separately to avoid nested f-string issues
+            if len(vulnerabilities) == 0:
+                vuln_section = '<p>No vulnerabilities detected.</p>'
+            else:
+                rows = []
+                for vuln in vulnerabilities:
+                    rows.append(
+                        '<tr>'
+                        f'<td>{vuln.get("type", "N/A")}</td>'
+                        f'<td class="severity-{vuln.get("severity", "low").lower()}">{vuln.get("severity", "N/A")}</td>'
+                        f'<td>{vuln.get("parameter", "N/A")}</td>'
+                        f'<td>{vuln.get("description", "N/A")}</td>'
+                        '</tr>'
+                    )
+                vuln_section = f'''
+                <table class="vulnerability-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Severity</th>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {"".join(rows)}
+                    </tbody>
+                </table>'''
 
-        generated_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        target_url = scan_data.get('target_url', 'N/A')
-        scan_type = scan_data.get('scan_type', 'N/A')
-        risk_score = scan_data.get('risk_score', 0)
-        total_vulns = len(vulnerabilities)
+            generated_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            target_url = scan_data.get('target_url', 'N/A')
+            scan_type = scan_data.get('scan_type', 'N/A')
+            risk_score = scan_data.get('risk_score', 0)
+            total_vulns = len(vulnerabilities)
 
-        html_template = f"""<!DOCTYPE html>
-        <html>
-        <head>
-            <title>WebScanPro Security Report</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }}
-                .container {{ max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-                .header {{ background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; text-align: center; }}
-                .info-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }}
-                .info-card {{ background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #6366F1; }}
-                .vulnerability-table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-                .vulnerability-table th, .vulnerability-table td {{ border: 1px solid #ddd; padding: 12px; text-align: left; }}
-                .vulnerability-table th {{ background: #6366F1; color: white; }}
-                .severity-critical {{ background-color: #fee; color: #c00; }}
-                .severity-high {{ background-color: #fff3cd; color: #856404; }}
-                .severity-medium {{ background-color: #d1ecf1; color: #0c5460; }}
-                .severity-low {{ background-color: #d4edda; color: #155724; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>WebScanPro Security Assessment Report</h1>
-                    <p>Generated on {generated_at}</p>
+            html_template = f"""<!DOCTYPE html>
+            <html>
+            <head>
+                <title>WebScanPro Security Report</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }}
+                    .container {{ max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+                    .header {{ background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; text-align: center; }}
+                    .info-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }}
+                    .info-card {{ background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #6366F1; }}
+                    .vulnerability-table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                    .vulnerability-table th, .vulnerability-table td {{ border: 1px solid #ddd; padding: 12px; text-align: left; }}
+                    .vulnerability-table th {{ background: #6366F1; color: white; }}
+                    .severity-critical {{ background-color: #fee; color: #c00; }}
+                    .severity-high {{ background-color: #fff3cd; color: #856404; }}
+                    .severity-medium {{ background-color: #d1ecf1; color: #0c5460; }}
+                    .severity-low {{ background-color: #d4edda; color: #155724; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>WebScanPro Security Assessment Report</h1>
+                        <p>Generated on {generated_at}</p>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-card"><h3>Target URL</h3><p>{target_url}</p></div>
+                        <div class="info-card"><h3>Scan Type</h3><p>{scan_type}</p></div>
+                        <div class="info-card"><h3>Risk Score</h3><p style="font-size: 24px; font-weight: bold;">{risk_score}%</p></div>
+                        <div class="info-card"><h3>Total Vulnerabilities</h3><p style="font-size: 24px; font-weight: bold;">{total_vulns}</p></div>
+                    </div>
+                    <h2>Detected Vulnerabilities</h2>
+                    {vuln_section}
                 </div>
-                <div class="info-grid">
-                    <div class="info-card"><h3>Target URL</h3><p>{target_url}</p></div>
-                    <div class="info-card"><h3>Scan Type</h3><p>{scan_type}</p></div>
-                    <div class="info-card"><h3>Risk Score</h3><p style="font-size: 24px; font-weight: bold;">{risk_score}%</p></div>
-                    <div class="info-card"><h3>Total Vulnerabilities</h3><p style="font-size: 24px; font-weight: bold;">{total_vulns}</p></div>
-                </div>
-                <h2>Detected Vulnerabilities</h2>
-                {vuln_section}
-            </div>
-        </body>
-        </html>"""
-        return html_template
-    except Exception as e:
-        print(f"HTML generation error: {e}")
-        return None
+            </body>
+            </html>"""
+            return html_template
+        except Exception as e:
+            print(f"HTML generation error: {e}")
+            return None
 
 class ScanManager:
     def __init__(self):
@@ -464,13 +470,13 @@ class ScanManager:
             ]
             
             fig, ax = plt.subplots(figsize=(8, 6))
-            colors = [PROFESSIONAL_COLORS['danger'], PROFESSIONAL_COLORS['warning'], 
+            colors_list = [PROFESSIONAL_COLORS['danger'], PROFESSIONAL_COLORS['warning'], 
                      PROFESSIONAL_COLORS['primary'], PROFESSIONAL_COLORS['success']]
             
             wedges, texts, autotexts = ax.pie(
                 counts, 
                 labels=severities, 
-                colors=colors,
+                colors=colors_list,
                 autopct='%1.1f%%',
                 startangle=90
             )
@@ -806,6 +812,9 @@ def api_register():
         if not username or not password:
             return jsonify({'error': 'Username and password required'}), 400
         
+        if len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
         conn = sqlite3.connect('webscanpro.db')
         c = conn.cursor()
         
@@ -814,8 +823,8 @@ def api_register():
         if c.fetchone():
             return jsonify({'error': 'Username already exists'}), 400
         
-        # Create new user
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        # Create new user with secure password hashing
+        password_hash = generate_password_hash(password)
         c.execute('INSERT INTO users (username, password_hash, email, created_at) VALUES (?, ?, ?, ?)',
                  (username, password_hash, email, datetime.now().isoformat()))
         
@@ -842,14 +851,11 @@ def api_login():
         c = conn.cursor()
         
         # Verify user credentials
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
-        c.execute('SELECT id, username FROM users WHERE username = ? AND password_hash = ?',
-                 (username, password_hash))
-        
+        c.execute('SELECT id, username, password_hash FROM users WHERE username = ?', (username,))
         user = c.fetchone()
         conn.close()
         
-        if user:
+        if user and check_password_hash(user[2], password):
             session['user_id'] = user[0]
             session['username'] = user[1]
             session.permanent = True
@@ -906,6 +912,11 @@ def api_start_scan():
         # Validate URL format
         if not target_url.startswith(('http://', 'https://')):
             target_url = 'http://' + target_url
+        
+        # Validate URL
+        parsed = urlparse(target_url)
+        if not parsed.netloc:
+            return jsonify({'error': 'Invalid URL format'}), 400
         
         scan_id = scan_manager.start_scan(target_url, scan_type, session['user_id'])
         
@@ -1071,7 +1082,28 @@ def api_get_stats():
             'colors': PROFESSIONAL_COLORS
         })
 
-# Debug endpoints
+# Health check endpoint
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring"""
+    try:
+        # Check database
+        conn = sqlite3.connect('webscanpro.db')
+        conn.execute('SELECT 1')
+        conn.close()
+        
+        return jsonify({
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'version': '2.0.0'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e)
+        }), 500
+
+# Debug endpoints (protected)
 @app.route('/api/debug/scans')
 @login_required
 def debug_scans():
@@ -1135,18 +1167,22 @@ def debug_users():
 # Error handlers
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({'error': 'Endpoint not found'}), 404
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'Endpoint not found'}), 404
+    return render_template('index.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({'error': 'Internal server error'}), 500
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'Internal server error'}), 500
+    return render_template('index.html'), 500
 
 def create_templates():
     """Create all necessary templates"""
     templates_dir = 'templates'
     os.makedirs(templates_dir, exist_ok=True)
     
-    # Dashboard template
+    # Dashboard template (same as your existing one)
     dashboard_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1493,13 +1529,454 @@ def create_templates():
     with open(os.path.join(templates_dir, 'dashboard.html'), 'w', encoding='utf-8') as f:
         f.write(dashboard_html)
     
+    # Create login template
+    login_html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #6366F1;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #6366F1;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .register-link a {
+            color: #6366F1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🔐 WebScanPro</h1>
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <form onsubmit="login(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="register-link">
+            Don't have an account? <a href="/register">Register here</a>
+        </div>
+    </div>
+
+    <script>
+        async function login(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = '/dashboard';
+                } else {
+                    errorDiv.textContent = data.error || 'Login failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>"""
+    
+    with open(os.path.join(templates_dir, 'login.html'), 'w', encoding='utf-8') as f:
+        f.write(login_html)
+    
+    # Create register template
+    register_html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScanPro - Register</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #6366F1;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #6366F1;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .login-link a {
+            color: #6366F1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>📝 WebScanPro</h1>
+        <div id="messageDiv"></div>
+        <form onsubmit="register(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label>Email (optional)</label>
+                <input type="email" id="email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required minlength="6">
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="/login">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        async function register(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('messageDiv');
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.className = 'success-message';
+                    messageDiv.textContent = 'Registration successful! Redirecting to login...';
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    messageDiv.className = 'error-message';
+                    messageDiv.textContent = data.error || 'Registration failed';
+                }
+            } catch (error) {
+                messageDiv.className = 'error-message';
+                messageDiv.textContent = 'Network error. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>"""
+    
+    with open(os.path.join(templates_dir, 'register.html'), 'w', encoding='utf-8') as f:
+        f.write(register_html)
+    
     # Create other basic templates
-    basic_templates = ['index.html', 'login.html', 'register.html', 'scanner.html', 'reports.html', 'analytics.html', 'history.html']
+    basic_templates = ['index.html', 'scanner.html', 'reports.html', 'analytics.html', 'history.html']
     for template in basic_templates:
         template_path = os.path.join(templates_dir, template)
         if not os.path.exists(template_path):
             with open(template_path, 'w', encoding='utf-8') as f:
-                f.write(f"""<!DOCTYPE html>
+                if template == 'index.html':
+                    f.write("""<!DOCTYPE html>
+<html>
+<head>
+    <title>WebScanPro - Professional Security Scanner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 600px;
+        }
+        h1 {
+            color: #6366F1;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 10px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .feature h3 {
+            color: #6366F1;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ WebScanPro</h1>
+        <p>Professional Web Vulnerability Scanner & Security Analytics Platform</p>
+        <div>
+            <a href="/login" class="btn">Login</a>
+            <a href="/register" class="btn">Register</a>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>🔍 Vulnerability Scanning</h3>
+                <p>SQLi, XSS, IDOR & more</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Analytics Dashboard</h3>
+                <p>Real-time security metrics</p>
+            </div>
+            <div class="feature">
+                <h3>📄 Report Generation</h3>
+                <p>PDF, CSV, JSON, HTML</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>""")
+                else:
+                    f.write(f"""<!DOCTYPE html>
 <html>
 <head>
     <title>WebScanPro - {template.replace('.html', '').title()}</title>
@@ -1512,18 +1989,31 @@ def create_templates():
             margin: 0;
             padding: 0;
             min-height: 100vh;
+        }}
+        .navbar {{
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        .nav-links {{
             display: flex;
             justify-content: center;
-            align-items: center;
+            gap: 20px;
+        }}
+        .nav-links a {{
+            color: #6366F1;
+            text-decoration: none;
+            font-weight: 600;
         }}
         .container {{
+            max-width: 1200px;
+            margin: 40px auto;
             background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }}
-        h1 {{ color: #6366F1; }}
+        h1 {{ color: #6366F1; text-align: center; }}
         .btn {{
             display: inline-block;
             padding: 10px 20px;
@@ -1536,10 +2026,21 @@ def create_templates():
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/scanner">Scanner</a>
+            <a href="/reports">Reports</a>
+            <a href="/history">History</a>
+            <a href="/analytics">Analytics</a>
+        </div>
+    </div>
     <div class="container">
-        <h1>WebScanPro</h1>
-        <p>{template.replace('.html', '').title()} page</p>
-        <a href="/dashboard" class="btn">Go to Dashboard</a>
+        <h1>{template.replace('.html', '').title()}</h1>
+        <p>This page is under construction. Check back soon!</p>
+        <div style="text-align: center;">
+            <a href="/dashboard" class="btn">Go to Dashboard</a>
+        </div>
     </div>
 </body>
 </html>""")
@@ -1551,15 +2052,19 @@ if __name__ == '__main__':
     print("🚀 WebScanPro Ultimate Starting...")
     print("📍 http://localhost:5000")
     print("🎨 Professional UI Ready")
-    print("🔐 Authentication System Active")
+    print("🔐 Authentication System Active (with secure password hashing)")
     print("📊 Scanning Engine Loaded")
     print("📄 Report Generation Available (PDF, CSV, JSON, HTML)")
     print("📋 History Tracking Active")
     print("💫 Amazing Animations Enabled")
     print("=" * 50)
-    print("\n💡 Debug endpoints available:")
+    print("\n💡 Debug endpoints available (login required):")
     print("   - http://localhost:5000/api/debug/scans")
     print("   - http://localhost:5000/api/debug/users")
+    print("   - http://localhost:5000/health (health check)")
+    print("=" * 50)
+    print("\n🔑 Default test users - create your own via /register")
     print("=" * 50)
     
+    # Run the app
     app.run(debug=True, port=5000, host='0.0.0.0')
