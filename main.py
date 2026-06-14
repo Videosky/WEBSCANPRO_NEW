@@ -268,127 +268,85 @@ class ReportGenerator:
             print(f"JSON generation error: {e}")
             return None
     
-    @staticmethod
-    def generate_html_report(scan_data, vulnerabilities):
-        """Generate HTML report"""
-        try:
-            html_template = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>WebScanPro Security Report</title>
-                <style>
-                    body {{
-                        font-family: Arial, sans-serif;
-                        margin: 20px;
-                        background: #f5f5f5;
-                    }}
-                    .container {{
-                        max-width: 1200px;
-                        margin: 0 auto;
-                        background: white;
-                        padding: 30px;
-                        border-radius: 10px;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    }}
-                    .header {{
-                        background: linear-gradient(135deg, #6366F1, #8B5CF6);
-                        color: white;
-                        padding: 30px;
-                        border-radius: 10px;
-                        margin-bottom: 30px;
-                        text-align: center;
-                    }}
-                    .info-grid {{
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                        gap: 20px;
-                        margin-bottom: 30px;
-                    }}
-                    .info-card {{
-                        background: #f8f9fa;
-                        padding: 20px;
-                        border-radius: 8px;
-                        border-left: 4px solid #6366F1;
-                    }}
-                    .vulnerability-table {{
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 20px;
-                    }}
-                    .vulnerability-table th,
-                    .vulnerability-table td {{
-                        border: 1px solid #ddd;
-                        padding: 12px;
-                        text-align: left;
-                    }}
-                    .vulnerability-table th {{
-                        background: #6366F1;
-                        color: white;
-                    }}
-                    .severity-critical {{ background-color: #fee; color: #c00; }}
-                    .severity-high {{ background-color: #fff3cd; color: #856404; }}
-                    .severity-medium {{ background-color: #d1ecf1; color: #0c5460; }}
-                    .severity-low {{ background-color: #d4edda; color: #155724; }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>WebScanPro Security Assessment Report</h1>
-                        <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-                    </div>
-                    
-                    <div class="info-grid">
-                        <div class="info-card">
-                            <h3>Target URL</h3>
-                            <p>{scan_data.get('target_url', 'N/A')}</p>
-                        </div>
-                        <div class="info-card">
-                            <h3>Scan Type</h3>
-                            <p>{scan_data.get('scan_type', 'N/A')}</p>
-                        </div>
-                        <div class="info-card">
-                            <h3>Risk Score</h3>
-                            <p style="font-size: 24px; font-weight: bold;">{scan_data.get('risk_score', 0)}%</p>
-                        </div>
-                        <div class="info-card">
-                            <h3>Total Vulnerabilities</h3>
-                            <p style="font-size: 24px; font-weight: bold;">{len(vulnerabilities)}</p>
-                        </div>
-                    </div>
-                    
-                    <h2>Detected Vulnerabilities</h2>
-                    {'<p>No vulnerabilities detected.</p>' if len(vulnerabilities) == 0 else f'''
-                    <table class="vulnerability-table">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Severity</th>
-                                <th>Parameter</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {''.join([f'''
-                            <tr>
-                                <td>{vuln.get('type', 'N/A')}</td>
-                                <td class="severity-{vuln.get('severity', 'low').lower()}">{vuln.get('severity', 'N/A')}</td>
-                                <td>{vuln.get('parameter', 'N/A')}</td>
-                                <td>{vuln.get('description', 'N/A')}</td>
-                            </tr>
-                            ''' for vuln in vulnerabilities])}
-                        </tbody>
-                    </table>
-                    '''}
+  @staticmethod
+def generate_html_report(scan_data, vulnerabilities):
+    """Generate HTML report"""
+    try:
+        # Build rows separately to avoid nested f-string issues
+        if len(vulnerabilities) == 0:
+            vuln_section = '<p>No vulnerabilities detected.</p>'
+        else:
+            rows = []
+            for vuln in vulnerabilities:
+                rows.append(
+                    '<tr>'
+                    f'<td>{vuln.get("type", "N/A")}</td>'
+                    f'<td class="severity-{vuln.get("severity", "low").lower()}">{vuln.get("severity", "N/A")}</td>'
+                    f'<td>{vuln.get("parameter", "N/A")}</td>'
+                    f'<td>{vuln.get("description", "N/A")}</td>'
+                    '</tr>'
+                )
+            vuln_section = f'''
+            <table class="vulnerability-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {"".join(rows)}
+                </tbody>
+            </table>'''
+
+        generated_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        target_url = scan_data.get('target_url', 'N/A')
+        scan_type = scan_data.get('scan_type', 'N/A')
+        risk_score = scan_data.get('risk_score', 0)
+        total_vulns = len(vulnerabilities)
+
+        html_template = f"""<!DOCTYPE html>
+        <html>
+        <head>
+            <title>WebScanPro Security Report</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }}
+                .container {{ max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+                .header {{ background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; text-align: center; }}
+                .info-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }}
+                .info-card {{ background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #6366F1; }}
+                .vulnerability-table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                .vulnerability-table th, .vulnerability-table td {{ border: 1px solid #ddd; padding: 12px; text-align: left; }}
+                .vulnerability-table th {{ background: #6366F1; color: white; }}
+                .severity-critical {{ background-color: #fee; color: #c00; }}
+                .severity-high {{ background-color: #fff3cd; color: #856404; }}
+                .severity-medium {{ background-color: #d1ecf1; color: #0c5460; }}
+                .severity-low {{ background-color: #d4edda; color: #155724; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>WebScanPro Security Assessment Report</h1>
+                    <p>Generated on {generated_at}</p>
                 </div>
-            </body>
-            </html>
-            """
-            return html_template
-        except Exception as e:
-            print(f"HTML generation error: {e}")
-            return None
+                <div class="info-grid">
+                    <div class="info-card"><h3>Target URL</h3><p>{target_url}</p></div>
+                    <div class="info-card"><h3>Scan Type</h3><p>{scan_type}</p></div>
+                    <div class="info-card"><h3>Risk Score</h3><p style="font-size: 24px; font-weight: bold;">{risk_score}%</p></div>
+                    <div class="info-card"><h3>Total Vulnerabilities</h3><p style="font-size: 24px; font-weight: bold;">{total_vulns}</p></div>
+                </div>
+                <h2>Detected Vulnerabilities</h2>
+                {vuln_section}
+            </div>
+        </body>
+        </html>"""
+        return html_template
+    except Exception as e:
+        print(f"HTML generation error: {e}")
+        return None
 
 class ScanManager:
     def __init__(self):
